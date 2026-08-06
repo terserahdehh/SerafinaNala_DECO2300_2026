@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+Recordings/
+
+# IDE files
+.vscode/
+.idea/
+.vs/
+
+# Visual Studio generated files
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# Unity generated files
+*.unityproj
+*.apk
+*.aab
+*.app
+*.unitypackage
