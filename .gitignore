@@ -34,3 +34,9 @@ Recordings/
 *.aab
 *.app
 *.unitypackage
+
+# Unity local build and debug output
+**/*_BackUpThisFolder_ButDontShipItWithYourGame/
+**/*_BurstDebugInformation_DoNotShip/
+*.dSYM/
+*.utmp
