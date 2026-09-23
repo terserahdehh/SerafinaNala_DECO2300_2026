@@ -25,6 +25,7 @@ public class DrumRecorder : MonoBehaviour
     private class RecordingData
     {
         public List<DrumHit> hits;
+        public float duration;
     }
 
     [Header("Audio")]
@@ -33,30 +34,50 @@ public class DrumRecorder : MonoBehaviour
         new List<AudioClip>();
 
     [Header("Record Button")]
+    [SerializeField] private GameObject recordButton;
     [SerializeField] private Image recordButtonImage;
     [SerializeField] private Sprite normalRecordIcon;
     [SerializeField] private Sprite activeRecordIcon;
 
-    [Header("Play Button")]
+    [Header("Retake Button")]
+    [SerializeField] private GameObject retakeButton;
+
+    [Header("Playback Button")]
+    [SerializeField] private GameObject playbackButton;
     [SerializeField] private Image playButtonImage;
     [SerializeField] private Sprite playIcon;
     [SerializeField] private Sprite pauseIcon;
+
+    [Header("Save Button")]
+    [SerializeField] private GameObject saveButton;
+
+    [Header("Performance")]
+    [SerializeField] private PerformanceSequence performanceSequence;
 
     [Header("Debug")]
     [SerializeField] private bool isRecording;
     [SerializeField] private bool isReplaying;
     [SerializeField] private bool isPlaybackPaused;
+    [SerializeField] private bool hasRecording;
+    [SerializeField] private bool isPerformanceMode;
+    [SerializeField] private bool isPerformancePaused;
+    [SerializeField] private bool performanceTransitionActive;
     [SerializeField] private int recordedHitCount;
+    [SerializeField] private float recordingDuration;
 
     private readonly List<DrumHit> recordedHits =
         new List<DrumHit>();
 
     private float recordingStartTime;
     private Coroutine replayCoroutine;
+    private Coroutine performanceCoroutine;
 
     public bool IsRecording => isRecording;
     public bool IsReplaying => isReplaying;
     public bool IsPlaybackPaused => isPlaybackPaused;
+    public bool HasRecording => hasRecording;
+    public bool IsPerformanceMode => isPerformanceMode;
+    public bool IsPerformancePaused => isPerformancePaused;
 
     private void Awake()
     {
@@ -74,8 +95,25 @@ public class DrumRecorder : MonoBehaviour
 
     private void Start()
     {
+        isRecording = false;
+        isReplaying = false;
+        isPlaybackPaused = false;
+        hasRecording = false;
+        isPerformanceMode = false;
+        isPerformancePaused = false;
+        performanceTransitionActive = false;
+
+        recordedHitCount = 0;
+        recordingDuration = 0f;
+
         UpdateRecordButtonIcon();
         UpdatePlayButtonIcon();
+        UpdateButtonVisibility();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateButtonVisibility();
     }
 
     private void OnDestroy()
@@ -100,11 +138,15 @@ public class DrumRecorder : MonoBehaviour
 
         recordedHits.Clear();
         recordedHitCount = 0;
+        recordingDuration = 0f;
 
-        recordingStartTime = Time.time;
+        hasRecording = false;
         isRecording = true;
 
+        recordingStartTime = Time.time;
+
         UpdateRecordButtonIcon();
+        UpdateButtonVisibility();
 
         Debug.Log("DRUM RECORDING STARTED");
     }
@@ -114,13 +156,53 @@ public class DrumRecorder : MonoBehaviour
         if (!isRecording)
             return;
 
+        recordingDuration =
+            Time.time - recordingStartTime;
+
         isRecording = false;
+        recordedHitCount = recordedHits.Count;
+        hasRecording = recordedHits.Count > 0;
 
         UpdateRecordButtonIcon();
+        UpdateButtonVisibility();
+
+        if (hasRecording)
+        {
+            Debug.Log(
+                "DRUM RECORDING STOPPED. HITS: "
+                + recordedHits.Count
+                + ". DURATION: "
+                + recordingDuration
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "RECORDING STOPPED, BUT NO HITS WERE RECORDED"
+            );
+        }
+    }
+
+    public void RetakeRecording()
+    {
+        StopReplay();
+
+        recordedHits.Clear();
+        recordedHitCount = 0;
+        recordingDuration = 0f;
+        recordingStartTime = 0f;
+
+        isRecording = false;
+        isReplaying = false;
+        isPlaybackPaused = false;
+        hasRecording = false;
+
+        UpdateRecordButtonIcon();
+        UpdatePlayButtonIcon();
+        UpdateButtonVisibility();
 
         Debug.Log(
-            "DRUM RECORDING STOPPED. HITS: "
-            + recordedHits.Count
+            "OLD RECORDING CLEARED. READY TO RECORD AGAIN"
         );
     }
 
@@ -129,7 +211,8 @@ public class DrumRecorder : MonoBehaviour
         if (!isRecording || drumSound == null)
             return;
 
-        float hitTime = Time.time - recordingStartTime;
+        float hitTime =
+            Time.time - recordingStartTime;
 
         recordedHits.Add(
             new DrumHit(drumSound.name, hitTime)
@@ -145,10 +228,19 @@ public class DrumRecorder : MonoBehaviour
         );
     }
 
-    // PLAYBACK
+    // PREVIEW PLAYBACK
 
     public void TogglePlayback()
     {
+        if (
+            isRecording ||
+            !hasRecording ||
+            isPerformanceMode
+        )
+        {
+            return;
+        }
+
         if (!isReplaying)
         {
             PlayRecording();
@@ -163,13 +255,24 @@ public class DrumRecorder : MonoBehaviour
 
     public void PlayRecording()
     {
-        if (recordedHits.Count == 0)
+        if (isRecording)
         {
-            Debug.LogWarning("NO DRUM RECORDING TO PLAY");
+            Debug.LogWarning(
+                "CANNOT PLAY WHILE RECORDING"
+            );
+
             return;
         }
 
-        StopRecording();
+        if (!hasRecording || recordedHits.Count == 0)
+        {
+            Debug.LogWarning(
+                "NO DRUM RECORDING TO PLAY"
+            );
+
+            return;
+        }
+
         StopReplay();
 
         isReplaying = true;
@@ -181,7 +284,9 @@ public class DrumRecorder : MonoBehaviour
             ReplayRecording()
         );
 
-        Debug.Log("DRUM RECORDING STARTED PLAYING");
+        Debug.Log(
+            "DRUM RECORDING STARTED PLAYING"
+        );
     }
 
     private IEnumerator ReplayRecording()
@@ -189,7 +294,10 @@ public class DrumRecorder : MonoBehaviour
         float playbackTime = 0f;
         int nextHitIndex = 0;
 
-        while (nextHitIndex < recordedHits.Count)
+        float previewDuration =
+            GetSafeRecordingDuration();
+
+        while (playbackTime < previewDuration)
         {
             if (isPlaybackPaused)
             {
@@ -199,28 +307,10 @@ public class DrumRecorder : MonoBehaviour
 
             playbackTime += Time.deltaTime;
 
-            while (
-                nextHitIndex < recordedHits.Count &&
-                playbackTime >= recordedHits[nextHitIndex].time
-            )
-            {
-                DrumHit hit = recordedHits[nextHitIndex];
-                AudioClip clip = FindDrumSound(hit.soundName);
-
-                if (clip != null && playbackAudioSource != null)
-                {
-                    playbackAudioSource.PlayOneShot(clip);
-                }
-                else
-                {
-                    Debug.LogWarning(
-                        "COULD NOT REPLAY SOUND: "
-                        + hit.soundName
-                    );
-                }
-
-                nextHitIndex++;
-            }
+            PlayHitsAtTime(
+                playbackTime,
+                ref nextHitIndex
+            );
 
             yield return null;
         }
@@ -231,7 +321,9 @@ public class DrumRecorder : MonoBehaviour
 
         UpdatePlayButtonIcon();
 
-        Debug.Log("DRUM RECORDING FINISHED PLAYING");
+        Debug.Log(
+            "DRUM RECORDING FINISHED PLAYING"
+        );
     }
 
     private void PauseReplay()
@@ -281,7 +373,211 @@ public class DrumRecorder : MonoBehaviour
         UpdatePlayButtonIcon();
     }
 
-    private AudioClip FindDrumSound(string soundName)
+    // LOOPED PERFORMANCE
+
+    public void BeginPerformanceTransition()
+    {
+        StopReplay();
+        StopPerformance();
+
+        performanceTransitionActive = true;
+
+        UpdateButtonVisibility();
+    }
+
+    public void StartLoopedPerformance()
+    {
+        if (!hasRecording || recordedHits.Count == 0)
+        {
+            Debug.LogWarning(
+                "NO RECORDING AVAILABLE FOR PERFORMANCE"
+            );
+
+            return;
+        }
+
+        StopReplay();
+        StopPerformance();
+
+        performanceTransitionActive = false;
+        isPerformanceMode = true;
+        isPerformancePaused = false;
+
+        performanceCoroutine = StartCoroutine(
+            LoopPerformance()
+        );
+
+        UpdateButtonVisibility();
+
+        Debug.Log(
+            "LOOPED MUSICIAN PERFORMANCE STARTED"
+        );
+    }
+
+    private IEnumerator LoopPerformance()
+    {
+        float loopDuration =
+            GetSafeRecordingDuration();
+
+        while (isPerformanceMode)
+        {
+            float playbackTime = 0f;
+            int nextHitIndex = 0;
+
+            while (
+                playbackTime < loopDuration &&
+                isPerformanceMode
+            )
+            {
+                if (isPerformancePaused)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                playbackTime += Time.deltaTime;
+
+                PlayHitsAtTime(
+                    playbackTime,
+                    ref nextHitIndex
+                );
+
+                yield return null;
+            }
+        }
+
+        performanceCoroutine = null;
+    }
+
+    public void TogglePerformancePause()
+    {
+        if (!isPerformanceMode)
+            return;
+
+        isPerformancePaused =
+            !isPerformancePaused;
+
+        if (playbackAudioSource != null)
+        {
+            if (isPerformancePaused)
+                playbackAudioSource.Pause();
+            else
+                playbackAudioSource.UnPause();
+        }
+
+        Debug.Log(
+            isPerformancePaused
+                ? "PERFORMANCE PAUSED"
+                : "PERFORMANCE RESUMED"
+        );
+    }
+
+    public void StopPerformance()
+    {
+        if (performanceCoroutine != null)
+        {
+            StopCoroutine(performanceCoroutine);
+            performanceCoroutine = null;
+        }
+
+        isPerformanceMode = false;
+        isPerformancePaused = false;
+
+        if (playbackAudioSource != null)
+            playbackAudioSource.Stop();
+
+        UpdateButtonVisibility();
+    }
+
+    public void ResetAfterPerformanceDelete()
+    {
+        StopReplay();
+        StopPerformance();
+
+        recordedHits.Clear();
+
+        recordedHitCount = 0;
+        recordingDuration = 0f;
+        recordingStartTime = 0f;
+
+        isRecording = false;
+        isReplaying = false;
+        isPlaybackPaused = false;
+        hasRecording = false;
+
+        performanceTransitionActive = false;
+        isPerformanceMode = false;
+        isPerformancePaused = false;
+
+        DeleteSavedRecordingFile();
+
+        UpdateRecordButtonIcon();
+        UpdatePlayButtonIcon();
+        UpdateButtonVisibility();
+
+        Debug.Log(
+            "SAVED PERFORMANCE DELETED"
+        );
+    }
+
+    private void PlayHitsAtTime(
+        float playbackTime,
+        ref int nextHitIndex
+    )
+    {
+        while (
+            nextHitIndex < recordedHits.Count &&
+            playbackTime >=
+            recordedHits[nextHitIndex].time
+        )
+        {
+            DrumHit hit =
+                recordedHits[nextHitIndex];
+
+            AudioClip clip =
+                FindDrumSound(hit.soundName);
+
+            if (
+                clip != null &&
+                playbackAudioSource != null
+            )
+            {
+                playbackAudioSource.PlayOneShot(clip);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "COULD NOT REPLAY SOUND: "
+                    + hit.soundName
+                );
+            }
+
+            nextHitIndex++;
+        }
+    }
+
+    private float GetSafeRecordingDuration()
+    {
+        float lastHitTime = 0f;
+
+        if (recordedHits.Count > 0)
+        {
+            lastHitTime =
+                recordedHits[
+                    recordedHits.Count - 1
+                ].time;
+        }
+
+        return Mathf.Max(
+            recordingDuration,
+            lastHitTime + 0.1f,
+            0.1f
+        );
+    }
+
+    private AudioClip FindDrumSound(
+        string soundName
+    )
     {
         return drumSounds.Find(
             sound =>
@@ -290,20 +586,74 @@ public class DrumRecorder : MonoBehaviour
         );
     }
 
-    // BUTTON ICONS
+    // BUTTON VISIBILITY
+
+    private void UpdateButtonVisibility()
+    {
+        bool hideRecordingButtons =
+            performanceTransitionActive ||
+            isPerformanceMode;
+
+        bool showReviewButtons =
+            !hideRecordingButtons &&
+            hasRecording &&
+            !isRecording;
+
+        SetButtonActive(
+            recordButton,
+            !hideRecordingButtons &&
+            !showReviewButtons
+        );
+
+        SetButtonActive(
+            retakeButton,
+            showReviewButtons
+        );
+
+        SetButtonActive(
+            playbackButton,
+            showReviewButtons
+        );
+
+        SetButtonActive(
+            saveButton,
+            showReviewButtons
+        );
+    }
+
+    private void SetButtonActive(
+        GameObject buttonObject,
+        bool shouldBeActive
+    )
+    {
+        if (
+            buttonObject != null &&
+            buttonObject.activeSelf != shouldBeActive
+        )
+        {
+            buttonObject.SetActive(
+                shouldBeActive
+            );
+        }
+    }
 
     private void UpdateRecordButtonIcon()
     {
         if (recordButtonImage == null)
             return;
 
-        if (isRecording && activeRecordIcon != null)
+        if (
+            isRecording &&
+            activeRecordIcon != null
+        )
         {
-            recordButtonImage.sprite = activeRecordIcon;
+            recordButtonImage.sprite =
+                activeRecordIcon;
         }
-        else if (!isRecording && normalRecordIcon != null)
+        else if (normalRecordIcon != null)
         {
-            recordButtonImage.sprite = normalRecordIcon;
+            recordButtonImage.sprite =
+                normalRecordIcon;
         }
     }
 
@@ -318,11 +668,13 @@ public class DrumRecorder : MonoBehaviour
             pauseIcon != null
         )
         {
-            playButtonImage.sprite = pauseIcon;
+            playButtonImage.sprite =
+                pauseIcon;
         }
         else if (playIcon != null)
         {
-            playButtonImage.sprite = playIcon;
+            playButtonImage.sprite =
+                playIcon;
         }
     }
 
@@ -330,31 +682,79 @@ public class DrumRecorder : MonoBehaviour
 
     public void SaveRecording()
     {
-        if (recordedHits.Count == 0)
+        if (isRecording)
         {
-            Debug.LogWarning("NO DRUM RECORDING TO SAVE");
+            Debug.LogWarning(
+                "STOP RECORDING BEFORE SAVING"
+            );
+
             return;
         }
 
-        RecordingData recordingData = new RecordingData
+        if (!hasRecording || recordedHits.Count == 0)
         {
-            hits = new List<DrumHit>(recordedHits)
-        };
+            Debug.LogWarning(
+                "NO DRUM RECORDING TO SAVE"
+            );
 
-        string json = JsonUtility.ToJson(
-            recordingData,
-            true
+            return;
+        }
+
+        RecordingData recordingData =
+            new RecordingData
+            {
+                hits =
+                    new List<DrumHit>(
+                        recordedHits
+                    ),
+
+                duration = recordingDuration
+            };
+
+        string json =
+            JsonUtility.ToJson(
+                recordingData,
+                true
+            );
+
+        string savePath =
+            GetSavePath();
+
+        File.WriteAllText(
+            savePath,
+            json
         );
-
-        string savePath = Path.Combine(
-            Application.persistentDataPath,
-            "drum-recording.json"
-        );
-
-        File.WriteAllText(savePath, json);
 
         Debug.Log(
-            "DRUM RECORDING SAVED: " + savePath
+            "DRUM RECORDING SAVED: "
+            + savePath
+        );
+
+        if (performanceSequence != null)
+        {
+            performanceSequence.BeginPerformance();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "PERFORMANCE SEQUENCE HAS NOT BEEN ASSIGNED"
+            );
+        }
+    }
+
+    private void DeleteSavedRecordingFile()
+    {
+        string savePath = GetSavePath();
+
+        if (File.Exists(savePath))
+            File.Delete(savePath);
+    }
+
+    private string GetSavePath()
+    {
+        return Path.Combine(
+            Application.persistentDataPath,
+            "drum-recording.json"
         );
     }
 }

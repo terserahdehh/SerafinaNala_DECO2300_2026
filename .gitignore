@@ -1,5 +1,10 @@
 # macOS
 .DS_Store
+**/.DS_Store
+
+# Unity crash files
+mono_crash*.json
+**/mono_crash*.json
 
 # Unity generated folders
 [Ll]ibrary/
@@ -8,7 +13,7 @@
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
-UserSettings/
+[Uu]serSettings/
 MemoryCaptures/
 Recordings/
 
