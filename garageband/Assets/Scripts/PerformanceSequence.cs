@@ -42,15 +42,19 @@ public class PerformanceSequence : MonoBehaviour
     [SerializeField] private Transform renPerformancePoint;
     [SerializeField] private Animator renAnimator;
 
-    [Header("Animation")]
-    [SerializeField] private string performanceBoolParameter =
-        "IsPerforming";
+    [Header("Procedural Drumming")]
+    [SerializeField] private ProceduralDrummer.Rig mikaRig = new ProceduralDrummer.Rig();
+    [SerializeField] private ProceduralDrummer.Rig renRig = new ProceduralDrummer.Rig();
+    [SerializeField] private ProceduralDrummer.DrumTarget[] drumTargets;
+    private ProceduralDrummer selectedDrummer;
 
     private Quaternion initialMikaLocalRotation;
     private Quaternion initialRenLocalRotation;
 
     private Animator selectedAnimator;
     private Transform selectedMusician;
+
+    private Canvas performanceCanvas;
 
     private bool sequenceRunning;
     private bool performanceActive;
@@ -75,7 +79,36 @@ public class PerformanceSequence : MonoBehaviour
                 renRotationTarget.localRotation;
         }
 
+        PreparePerformanceUI();
         UpdatePauseButtonIcon(false);
+    }
+
+    private void PreparePerformanceUI()
+    {
+        if (performanceControls == null || xrOrigin == null || xrOrigin.Camera == null) return;
+        performanceCanvas = QuestUI.CreateCanvas("Performance Controls Canvas", xrOrigin.Camera,
+            new Vector2(950f, 430f), 150);
+        performanceCanvas.transform.SetParent(xrOrigin.transform, false);
+        QuestUI.Layout(performanceControls.GetComponent<RectTransform>(), performanceCanvas.transform,
+            Vector2.zero, new Vector2(950f, 430f));
+        var buttons = performanceControls.GetComponentsInChildren<Button>(true);
+        foreach (var button in buttons)
+        {
+            bool pause = pauseButtonImage != null && button.gameObject == pauseButtonImage.gameObject;
+            var image = button.GetComponent<Image>();
+            Vector2 size = pause ? new Vector2(150f, 150f) : new Vector2(310f, 150f);
+            if (image != null && image.sprite != null)
+            {
+                float aspect = image.sprite.rect.width / image.sprite.rect.height;
+                size = new Vector2(size.x, size.x / aspect);
+                if (size.y > 150f) size *= 150f / size.y;
+                image.preserveAspect = true;
+            }
+            QuestUI.Layout(button.GetComponent<RectTransform>(), performanceControls.transform,
+                new Vector2(pause ? 230f : -230f, 0f), size);
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+        }
+        QuestUI.ApplyOverlay(performanceControls);
     }
 
     public void BeginPerformance()
@@ -118,13 +151,11 @@ public class PerformanceSequence : MonoBehaviour
 
         blackoutCanvasGroup.blocksRaycasts = true;
 
-        yield return StartCoroutine(
-            FadeBlackout(
+        yield return FadeBlackout(
                 blackoutCanvasGroup.alpha,
                 1f,
                 fadeToBlackDuration
-            )
-        );
+            );
 
         if (drumModeVisuals != null)
             drumModeVisuals.DisableDrumMode();
@@ -139,30 +170,24 @@ public class PerformanceSequence : MonoBehaviour
         yield return null;
 
         yield return new WaitForSeconds(
-            blackoutHoldDuration
+            blackoutHoldDuration + delayBeforePerformance
         );
 
-        yield return StartCoroutine(
-            FadeBlackout(
+        yield return FadeBlackout(
                 1f,
                 0f,
                 fadeFromBlackDuration
-            )
-        );
+            );
 
         blackoutCanvasGroup.blocksRaycasts = false;
-
-        yield return new WaitForSeconds(
-            delayBeforePerformance
-        );
 
         performanceActive = true;
         sequenceRunning = false;
 
+        if (performanceCanvas != null)
+            QuestUI.PlaceInFront(performanceCanvas, xrOrigin.Camera, new Vector3(0f, 0f, 1.1f));
         if (performanceControls != null)
             performanceControls.SetActive(true);
-
-        SetSelectedMusicianPerforming(true);
 
         drumRecorder.StartLoopedPerformance();
 
@@ -187,12 +212,6 @@ public class PerformanceSequence : MonoBehaviour
 
         bool isPaused =
             drumRecorder.IsPerformancePaused;
-
-        if (selectedAnimator != null)
-        {
-            selectedAnimator.speed =
-                isPaused ? 0f : 1f;
-        }
 
         UpdatePauseButtonIcon(isPaused);
     }
@@ -222,21 +241,16 @@ public class PerformanceSequence : MonoBehaviour
         drumRecorder.StopPerformance();
         drumRecorder.BeginPerformanceTransition();
 
-        if (selectedAnimator != null)
-            selectedAnimator.speed = 1f;
-
-        SetSelectedMusicianPerforming(false);
 
         blackoutCanvasGroup.blocksRaycasts = true;
 
-        yield return StartCoroutine(
-            FadeBlackout(
+        yield return FadeBlackout(
                 blackoutCanvasGroup.alpha,
                 1f,
                 fadeToBlackDuration
-            )
-        );
+            );
 
+        if (selectedDrummer != null) selectedDrummer.Release();
         if (selectedMusician != null)
             selectedMusician.gameObject.SetActive(false);
 
@@ -259,23 +273,19 @@ public class PerformanceSequence : MonoBehaviour
             blackoutHoldDuration
         );
 
-        yield return StartCoroutine(
-            FadeBlackout(
+        yield return FadeBlackout(
                 1f,
                 0f,
                 fadeFromBlackDuration
-            )
-        );
+            );
 
         blackoutCanvasGroup.blocksRaycasts = false;
 
         performanceActive = false;
         sequenceRunning = false;
 
-        drumRecorder.StartRecording();
-
         Debug.Log(
-            "RETURNED TO DRUM SEAT. NEW RECORDING STARTED"
+            "RETURNED TO DRUM SEAT. PRESS A TO RECORD"
         );
     }
 
@@ -322,6 +332,24 @@ public class PerformanceSequence : MonoBehaviour
                 "NO MUSICIAN HAS BEEN SELECTED"
             );
         }
+        if (selectedMusician != null)
+        {
+            var rig = selectedName == "MIKA" ? mikaRig : renRig;
+            if (rig.animator == null) rig.animator = selectedAnimator;
+            selectedDrummer = selectedMusician.GetComponent<ProceduralDrummer>();
+            if (selectedDrummer == null) selectedDrummer = selectedMusician.gameObject.AddComponent<ProceduralDrummer>();
+            selectedDrummer.Seat(selectedMusician, rig);
+        }
+    }
+
+    public void PrepareDrumming(System.Collections.Generic.IReadOnlyList<DrumRecorder.DrumHit> hits, float duration)
+    {
+        if (selectedDrummer != null) selectedDrummer.PrepareRecording(hits, duration, drumTargets);
+    }
+
+    public void EvaluateDrumming(float playbackTime)
+    {
+        if (selectedDrummer != null) selectedDrummer.Evaluate(playbackTime);
     }
 
     private void PlaceMusician(
@@ -387,60 +415,6 @@ public class PerformanceSequence : MonoBehaviour
         xrOrigin.MoveCameraToWorldLocation(
             targetPoint.position
         );
-    }
-
-    private void SetSelectedMusicianPerforming(
-        bool isPerforming
-    )
-    {
-        if (selectedAnimator == null)
-            return;
-
-        selectedAnimator.speed = 1f;
-
-        if (
-            HasBoolParameter(
-                selectedAnimator,
-                performanceBoolParameter
-            )
-        )
-        {
-            selectedAnimator.SetBool(
-                performanceBoolParameter,
-                isPerforming
-            );
-        }
-    }
-
-    private bool HasBoolParameter(
-        Animator animator,
-        string parameterName
-    )
-    {
-        if (
-            animator == null ||
-            string.IsNullOrEmpty(parameterName)
-        )
-        {
-            return false;
-        }
-
-        foreach (
-            AnimatorControllerParameter parameter
-            in animator.parameters
-        )
-        {
-            if (
-                parameter.name == parameterName &&
-                parameter.type ==
-                AnimatorControllerParameterType.Bool
-            )
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void UpdatePauseButtonIcon(

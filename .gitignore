@@ -45,3 +45,22 @@ Recordings/
 **/*_BurstDebugInformation_DoNotShip/
 *.dSYM/
 *.utmp
+
+# Local Unity cache backup (not project source)
+[Ll]ibrary_backup/
+
+# Audited recovery snapshot: Assets/_Recovery/0.unity matches HEAD MusicRoom.unity
+/garageband/Assets/_Recovery/
+/garageband/Assets/_Recovery.meta
+
+# Generated Unity performance-test run metadata
+/garageband/Assets/Resources/PerformanceTestRunInfo.json
+/garageband/Assets/Resources/PerformanceTestRunInfo.json.meta
+/garageband/Assets/Resources/PerformanceTestRunSettings.json
+/garageband/Assets/Resources/PerformanceTestRunSettings.json.meta
+
+# Audited unreferenced duplicates; canonical settings remain tracked
+/garageband/Assets/XR/AndroidXR/AndroidXRSettingsInitializer 20
+/garageband/Assets/XR/AndroidXR/AndroidXRSettingsInitializer 20.meta
+/garageband/ProjectSettings/ShaderGraphSettings 3.asset
+/garageband/ProjectSettings/ShaderGraphSettings 4.asset

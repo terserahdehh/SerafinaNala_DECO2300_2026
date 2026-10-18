@@ -16,8 +16,8 @@ public class DrumSeatLock : MonoBehaviour
     public void UnlockMovement()
     {
         if (moveProvider != null)
-            moveProvider.enabled = true;
+            moveProvider.enabled = false;
 
-        Debug.Log("SEATED: MOVEMENT UNLOCKED");
+        Debug.Log("SCRIPTED EXPERIENCE: MANUAL MOVEMENT REMAINS LOCKED");
     }
 }

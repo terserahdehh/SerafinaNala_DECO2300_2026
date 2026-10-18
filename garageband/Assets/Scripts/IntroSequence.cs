@@ -1,8 +1,9 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Unity.XR.CoreUtils;
+using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 public class IntroSequence : MonoBehaviour
 {
@@ -83,10 +84,11 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] private float fadeFromBlackDuration = 1f;
 
     public string SelectedMusician { get; private set; }
+    public bool IsDialogueActive => dialogueIsActive;
+    public bool IsAtDrumSeat { get; private set; }
 
     private bool hasStarted;
     private bool dialogueIsActive;
-    private bool previousXButtonState;
     private bool musicianHasBeenChosen;
     private bool finalTransitionStarted;
 
@@ -94,6 +96,100 @@ public class IntroSequence : MonoBehaviour
     private int dialogueStage;
 
     private string[] activeDialogues;
+    private Canvas conversationCanvas;
+
+    private TMP_Text advanceLabel;
+    private Canvas startCanvas;
+
+    private void PrepareConversationCanvas()
+    {
+        if (conversationCanvas != null || playerCamera == null) return;
+        var eye = playerCamera.GetComponent<Camera>();
+        conversationCanvas = QuestUI.CreateCanvas("Conversation Canvas", eye, new Vector2(1100f, 650f), 120);
+        QuestUI.Layout(dialoguePanel.GetComponent<RectTransform>(), conversationCanvas.transform,
+            Vector2.zero, new Vector2(900f, 250f));
+        QuestUI.Layout(musicianChoicePanel.GetComponent<RectTransform>(), conversationCanvas.transform,
+            Vector2.zero, new Vector2(950f, 430f));
+
+        // Keep the original Unity button artwork, aligned with the dialogue footer.
+        foreach (var button in dialoguePanel.GetComponentsInChildren<Button>(true))
+        {
+            QuestUI.Layout(button.GetComponent<RectTransform>(), dialoguePanel.transform,
+                new Vector2(365f, -87f), new Vector2(60f, 60f));
+            button.gameObject.SetActive(true);
+        }
+        QuestUI.Layout(dialogueText.rectTransform, dialoguePanel.transform, new Vector2(0f, 5f), new Vector2(820f, 125f));
+        dialogueText.color = QuestUI.Ink;
+        dialogueText.enableAutoSizing = true;
+        dialogueText.fontSizeMin = 22f;
+        dialogueText.fontSizeMax = 28f;
+        if (characterNameText != null)
+        {
+            QuestUI.Layout(characterNameText.rectTransform, dialoguePanel.transform,
+                new Vector2(0f, 94f), new Vector2(820f, 34f));
+            characterNameText.color = QuestUI.Ink;
+            characterNameText.fontSize = 25f;
+            characterNameText.alignment = TextAlignmentOptions.Left;
+        }
+        QuestUI.Text("Dialogue Controller Hint", dialoguePanel.transform, "RIGHT CONTROLLER",
+            new Vector2(-200f, -91f), new Vector2(400f, 34f), 20f, QuestUI.Ink);
+        advanceLabel = QuestUI.Text("Dialogue A Hint", dialoguePanel.transform, "A  •  Next",
+            new Vector2(225f, -91f), new Vector2(210f, 36f), 23f, QuestUI.Ink);
+        QuestUI.ApplyOverlay(dialoguePanel);
+        QuestUI.ApplyOverlay(musicianChoicePanel);
+    }
+
+    private void PositionConversationCanvas()
+    {
+        PrepareConversationCanvas();
+        if (conversationCanvas == null || playerCamera == null) return;
+        if (dialogueIsActive)
+        {
+            // Subtitle-sized UI below the face, close to the eyes and rendered over geometry.
+            conversationCanvas.transform.SetParent(playerCamera, false);
+            conversationCanvas.transform.localPosition = new Vector3(0f, -.31f, .85f);
+            conversationCanvas.transform.localRotation = Quaternion.identity;
+            conversationCanvas.transform.localScale = Vector3.one * .001f;
+        }
+        else
+        {
+            conversationCanvas.transform.SetParent(xrOrigin != null ? xrOrigin.transform : null, true);
+            QuestUI.PlaceInFront(conversationCanvas, playerCamera.GetComponent<Camera>(), new Vector3(0f, 0f, 1.1f));
+        }
+    }
+
+    private void PrepareStartCanvas()
+    {
+        if (startExperienceButton == null || playerCamera == null || startCanvas != null) return;
+        var eye = playerCamera.GetComponent<Camera>();
+        startCanvas = QuestUI.CreateCanvas("Start Experience Canvas", eye, new Vector2(700f, 300f), 120);
+        // Tracking can establish eye height after Start; keep this menu eye-relative.
+        startCanvas.transform.SetParent(playerCamera, false);
+        startCanvas.transform.localPosition = new Vector3(0f, 0f, 1.1f);
+        startCanvas.transform.localRotation = Quaternion.identity;
+        startCanvas.transform.localScale = Vector3.one * .001f;
+        QuestUI.Background("Start Backdrop", startCanvas.transform, new Vector2(700f, 300f), new Color(.06f, .08f, .12f, .94f));
+        QuestUI.Text("Start Title", startCanvas.transform, "GARAGEBAND", new Vector2(0f, 92f), new Vector2(620f, 50f), 36f, Color.white);
+        QuestUI.Layout(startExperienceButton.GetComponent<RectTransform>(), startCanvas.transform,
+            Vector2.zero, new Vector2(480f, 90f));
+        var image = startExperienceButton.GetComponent<Image>();
+        if (image != null) image.preserveAspect = true;
+        QuestUI.Text("Start Ray Hint", startCanvas.transform, "Point your controller ray and press the trigger",
+            new Vector2(0f, -94f), new Vector2(650f, 45f), 22f, Color.white);
+        QuestUI.ApplyOverlay(startExperienceButton);
+    }
+
+    private void PrepareBlackoutCanvas()
+    {
+        if (blackoutCanvasGroup == null || playerCamera == null) return;
+        var fade = QuestUI.CreateCanvas("Headset Fade Canvas", playerCamera.GetComponent<Camera>(), new Vector2(4000f, 4000f), 1000);
+        fade.transform.SetParent(playerCamera, false);
+        fade.transform.localPosition = new Vector3(0f, 0f, .3f);
+        fade.transform.localScale = Vector3.one * .001f;
+        QuestUI.Layout(blackoutCanvasGroup.GetComponent<RectTransform>(), fade.transform,
+            Vector2.zero, new Vector2(4000f, 4000f));
+        QuestUI.ApplyOverlay(blackoutCanvasGroup.gameObject);
+    }
 
     private void Start()
     {
@@ -112,37 +208,15 @@ public class IntroSequence : MonoBehaviour
 
         if (xrOrigin == null)
             xrOrigin = FindFirstObjectByType<XROrigin>();
-    }
+        if (xrOrigin != null && xrOrigin.Camera != null)
+            playerCamera = xrOrigin.Camera.transform;
+        else if (playerCamera == null && Camera.main != null)
+            playerCamera = Camera.main.transform;
 
-    private void Update()
-    {
-        if (!dialogueIsActive)
-            return;
-
-        bool keyboardXPressed =
-            Keyboard.current != null &&
-            Keyboard.current.xKey.wasPressedThisFrame;
-
-        UnityEngine.XR.InputDevice leftController =
-            UnityEngine.XR.InputDevices.GetDeviceAtXRNode(
-                UnityEngine.XR.XRNode.LeftHand
-            );
-
-        bool currentXButtonState = false;
-
-        leftController.TryGetFeatureValue(
-            UnityEngine.XR.CommonUsages.primaryButton,
-            out currentXButtonState
-        );
-
-        bool questXPressed =
-            currentXButtonState &&
-            !previousXButtonState;
-
-        if (keyboardXPressed || questXPressed)
-            NextDialogue();
-
-        previousXButtonState = currentXButtonState;
+        if (moveProvider != null) moveProvider.enabled = false;
+        PrepareConversationCanvas();
+        PrepareStartCanvas();
+        PrepareBlackoutCanvas();
     }
 
     public void StartExperience()
@@ -151,6 +225,7 @@ public class IntroSequence : MonoBehaviour
             return;
 
         hasStarted = true;
+        if (startCanvas != null) startCanvas.gameObject.SetActive(false);
 
         if (startExperienceButton != null)
             startExperienceButton.SetActive(false);
@@ -174,6 +249,7 @@ public class IntroSequence : MonoBehaviour
                 activeDialogues[currentDialogueIndex];
 
             UpdateSpeakerName();
+            UpdateAdvanceLabel();
         }
         else
         {
@@ -670,9 +746,17 @@ public class IntroSequence : MonoBehaviour
 
         UpdateSpeakerName();
 
-        dialoguePanel.SetActive(true);
         dialogueIsActive = true;
-        previousXButtonState = false;
+        PositionConversationCanvas();
+        dialoguePanel.SetActive(true);
+        UpdateAdvanceLabel();
+        Debug.Log("Dialogue opened. Press A on the right controller to continue/close.");
+    }
+
+    private void UpdateAdvanceLabel()
+    {
+        if (advanceLabel != null)
+            advanceLabel.text = currentDialogueIndex == activeDialogues.Length - 1 ? "A  •  Close" : "A  •  Next";
     }
 
     private void UpdateSpeakerName()
@@ -709,7 +793,6 @@ public class IntroSequence : MonoBehaviour
     private void CompleteCurrentDialogue()
     {
         dialogueIsActive = false;
-        previousXButtonState = false;
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
@@ -722,6 +805,7 @@ public class IntroSequence : MonoBehaviour
         }
         else if (dialogueStage == 1)
         {
+            PositionConversationCanvas();
             if (musicianChoicePanel != null)
                 musicianChoicePanel.SetActive(true);
 
@@ -805,6 +889,7 @@ public class IntroSequence : MonoBehaviour
 
         blackoutCanvasGroup.blocksRaycasts = false;
 
+        IsAtDrumSeat = true;
         Debug.Log(
             "Player moved automatically to the drum seat. Ms Maya is hidden."
         );
@@ -921,7 +1006,7 @@ public class IntroSequence : MonoBehaviour
         }
 
         if (moveProvider != null)
-            moveProvider.enabled = true;
+            moveProvider.enabled = false;
 
         OpenDialogue(musiciansDialogues, 1);
     }

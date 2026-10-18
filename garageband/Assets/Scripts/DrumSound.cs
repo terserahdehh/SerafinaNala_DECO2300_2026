@@ -29,9 +29,10 @@ public class DrumSound : MonoBehaviour
             return;
         }
 
-        bool keyboardBPressed =
-            Keyboard.current != null &&
-            Keyboard.current.bKey.wasPressedThisFrame;
+        bool keyboardBPressed = false;
+#if UNITY_EDITOR
+        keyboardBPressed = Keyboard.current != null && Keyboard.current.bKey.wasPressedThisFrame;
+#endif
 
         UnityEngine.XR.InputDevice rightController =
             UnityEngine.XR.InputDevices.GetDeviceAtXRNode(

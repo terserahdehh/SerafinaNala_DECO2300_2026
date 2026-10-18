@@ -59,12 +59,24 @@ public class SeatViewOnSelect : MonoBehaviour
             drumModeVisuals.EnableDrumMode();
     }
 
+#if UNITY_EDITOR
     private void Update()
     {
         if (Mouse.current == null ||
             !Mouse.current.leftButton.wasPressedThisFrame)
         {
             return;
+        }
+
+        // A desktop menu click must not also teleport to a drum collider behind the UI.
+        var eventSystem = UnityEngine.EventSystems.EventSystem.current;
+        if (eventSystem != null)
+        {
+            var pointer = new UnityEngine.EventSystems.PointerEventData(eventSystem)
+                { position = Mouse.current.position.ReadValue() };
+            var results = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+            eventSystem.RaycastAll(pointer, results);
+            if (results.Count > 0) return;
         }
 
         Camera mainCamera = Camera.main;
@@ -82,4 +94,5 @@ public class SeatViewOnSelect : MonoBehaviour
             MoveToSeat(default);
         }
     }
+#endif
 }

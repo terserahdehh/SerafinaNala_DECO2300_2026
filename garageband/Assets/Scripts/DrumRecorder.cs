@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using Unity.XR.CoreUtils;
 
 public class DrumRecorder : MonoBehaviour
 {
@@ -68,6 +70,19 @@ public class DrumRecorder : MonoBehaviour
     private readonly List<DrumHit> recordedHits =
         new List<DrumHit>();
 
+    private Canvas recordingCanvas;
+    private GameObject reviewPanel;
+    private GameObject recordStatusPanel;
+    private TMP_Text recordingStatusText;
+    private TMP_Text reviewTitle;
+    private bool hasCompletedTake;
+    private HelpMenu help;
+    private DrumModeVisuals drumModeVisuals;
+    private Canvas reviewOverlayCanvas;
+    public bool IsReviewing => hasCompletedTake && !isRecording && !performanceTransitionActive && !isPerformanceMode;
+    public bool CanToggleRecording => recordingCanvas != null && recordingCanvas.gameObject.activeInHierarchy &&
+        !isPerformanceMode && !performanceTransitionActive && !hasCompletedTake;
+
     private float recordingStartTime;
     private Coroutine replayCoroutine;
     private Coroutine performanceCoroutine;
@@ -106,9 +121,72 @@ public class DrumRecorder : MonoBehaviour
         recordedHitCount = 0;
         recordingDuration = 0f;
 
+        PrepareRecordingUI();
         UpdateRecordButtonIcon();
         UpdatePlayButtonIcon();
         UpdateButtonVisibility();
+    }
+
+    private void PrepareRecordingUI()
+    {
+        if (recordingCanvas != null || recordButton == null) return;
+        recordingCanvas = recordButton.GetComponentInParent<Canvas>(true);
+        var origin = FindFirstObjectByType<XROrigin>();
+        var eye = origin != null ? origin.Camera : Camera.main;
+        if (recordingCanvas == null || eye == null) return;
+        QuestUI.ConfigureCanvas(recordingCanvas, eye, new Vector2(1100f, 700f), 150);
+        recordingCanvas.transform.SetParent(eye.transform, false);
+        recordingCanvas.transform.localPosition = new Vector3(0f, -.05f, 1f);
+        recordingCanvas.transform.localScale = Vector3.one * .001f;
+        help = FindFirstObjectByType<HelpMenu>();
+        drumModeVisuals = GetComponent<DrumModeVisuals>();
+        if (drumModeVisuals == null) drumModeVisuals = FindFirstObjectByType<DrumModeVisuals>();
+        reviewOverlayCanvas = QuestUI.CreateCanvas("Recording Full Screen Overlay", eye, new Vector2(4000f, 4000f), 140);
+        reviewOverlayCanvas.transform.SetParent(eye.transform, false);
+        reviewOverlayCanvas.transform.localPosition = new Vector3(0f, 0f, .32f);
+        reviewOverlayCanvas.transform.localScale = Vector3.one * .001f;
+        QuestUI.Background("Full View Dimmer", reviewOverlayCanvas.transform,
+            new Vector2(4000f, 4000f), new Color(0f, 0f, 0f, .8f));
+        reviewOverlayCanvas.gameObject.SetActive(false);
+
+        recordStatusPanel = QuestUI.Background("Recording Status Panel", recordingCanvas.transform,
+            new Vector2(650f, 100f), new Color(.04f, .06f, .1f, .92f)).gameObject;
+        recordStatusPanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -230f);
+        QuestUI.Layout(recordButton.GetComponent<RectTransform>(), recordStatusPanel.transform,
+            new Vector2(-245f, 0f), new Vector2(64f, 64f));
+        recordingStatusText = QuestUI.Text("Recording Status", recordStatusPanel.transform,
+            "A  •  Start recording", new Vector2(45f, 0f), new Vector2(480f, 70f), 26f, Color.white);
+
+        reviewPanel = new GameObject("Recording Review Panel", typeof(RectTransform));
+        QuestUI.Layout(reviewPanel.GetComponent<RectTransform>(), recordingCanvas.transform,
+            Vector2.zero, new Vector2(950f, 330f));
+        reviewTitle = QuestUI.Text("Review Title", reviewPanel.transform, "RECORDING READY",
+            new Vector2(0f, 114f), new Vector2(850f, 45f), 32f, Color.white);
+        LayoutReviewButton(playbackButton, 0f);
+        LayoutReviewButton(retakeButton, -280f);
+        LayoutReviewButton(saveButton, 280f);
+        QuestUI.Text("Review Ray Hint", reviewPanel.transform,
+            "Point your controller ray at a button and press the trigger",
+            new Vector2(0f, -116f), new Vector2(900f, 40f), 23f, Color.white);
+        QuestUI.ApplyOverlay(recordingCanvas.gameObject);
+        reviewPanel.SetActive(false);
+    }
+
+    private void LayoutReviewButton(GameObject buttonObject, float x)
+    {
+        if (buttonObject == null) return;
+        var image = buttonObject.GetComponent<Image>();
+        var size = new Vector2(150f, 150f);
+        if (image != null && image.sprite != null)
+        {
+            float aspect = image.sprite.rect.width / image.sprite.rect.height;
+            size = aspect >= 1f ? new Vector2(210f, 210f / aspect) : new Vector2(150f * aspect, 150f);
+            image.preserveAspect = true;
+        }
+        QuestUI.Layout(buttonObject.GetComponent<RectTransform>(), reviewPanel.transform,
+            new Vector2(x, 0f), size);
+        var button = buttonObject.GetComponent<Button>();
+        if (button != null) button.navigation = new Navigation { mode = Navigation.Mode.None };
     }
 
     private void LateUpdate()
@@ -126,6 +204,7 @@ public class DrumRecorder : MonoBehaviour
 
     public void ToggleRecording()
     {
+        if (!CanToggleRecording || (help != null && help.IsOpen)) return;
         if (isRecording)
             StopRecording();
         else
@@ -141,9 +220,12 @@ public class DrumRecorder : MonoBehaviour
         recordingDuration = 0f;
 
         hasRecording = false;
+        hasCompletedTake = false;
         isRecording = true;
 
         recordingStartTime = Time.time;
+        AttachRecordingStatusToHeadset();
+        if (drumModeVisuals != null) drumModeVisuals.EnableDrumMode();
 
         UpdateRecordButtonIcon();
         UpdateButtonVisibility();
@@ -162,6 +244,16 @@ public class DrumRecorder : MonoBehaviour
         isRecording = false;
         recordedHitCount = recordedHits.Count;
         hasRecording = recordedHits.Count > 0;
+        hasCompletedTake = true;
+        if (recordingCanvas != null && recordingCanvas.worldCamera != null)
+        {
+            // Freeze the review panel in front of the current seated view for ray aiming.
+            var origin = FindFirstObjectByType<XROrigin>();
+            recordingCanvas.transform.SetParent(origin != null ? origin.transform : null, true);
+            QuestUI.PlaceInFront(recordingCanvas, recordingCanvas.worldCamera, new Vector3(0f, 0f, 1f));
+        }
+        if (drumModeVisuals != null) drumModeVisuals.SetMenuMode(true);
+        if (help != null) help.SetLaserVisuals(true);
 
         UpdateRecordButtonIcon();
         UpdateButtonVisibility();
@@ -185,25 +277,21 @@ public class DrumRecorder : MonoBehaviour
 
     public void RetakeRecording()
     {
+        if (performanceTransitionActive || isPerformanceMode) return;
         StopReplay();
-
         recordedHits.Clear();
         recordedHitCount = 0;
         recordingDuration = 0f;
         recordingStartTime = 0f;
-
         isRecording = false;
-        isReplaying = false;
-        isPlaybackPaused = false;
         hasRecording = false;
-
+        hasCompletedTake = false;
+        AttachRecordingStatusToHeadset();
+        if (drumModeVisuals != null) drumModeVisuals.EnableDrumMode();
         UpdateRecordButtonIcon();
         UpdatePlayButtonIcon();
         UpdateButtonVisibility();
-
-        Debug.Log(
-            "OLD RECORDING CLEARED. READY TO RECORD AGAIN"
-        );
+        Debug.Log("RETAKE: INITIAL RECORDING SCREEN RESTORED. PRESS A TO START.");
     }
 
     public void RecordHit(AudioClip drumSound)
@@ -419,6 +507,9 @@ public class DrumRecorder : MonoBehaviour
         float loopDuration =
             GetSafeRecordingDuration();
 
+        if (performanceSequence != null)
+            performanceSequence.PrepareDrumming(recordedHits, loopDuration);
+
         while (isPerformanceMode)
         {
             float playbackTime = 0f;
@@ -441,6 +532,9 @@ public class DrumRecorder : MonoBehaviour
                     playbackTime,
                     ref nextHitIndex
                 );
+
+                if (performanceSequence != null)
+                    performanceSequence.EvaluateDrumming(playbackTime);
 
                 yield return null;
             }
@@ -504,6 +598,8 @@ public class DrumRecorder : MonoBehaviour
         isReplaying = false;
         isPlaybackPaused = false;
         hasRecording = false;
+        hasCompletedTake = false;
+        AttachRecordingStatusToHeadset();
 
         performanceTransitionActive = false;
         isPerformanceMode = false;
@@ -596,8 +692,19 @@ public class DrumRecorder : MonoBehaviour
 
         bool showReviewButtons =
             !hideRecordingButtons &&
-            hasRecording &&
+            hasCompletedTake &&
             !isRecording;
+
+        SetButtonActive(reviewPanel, showReviewButtons);
+        if (reviewOverlayCanvas != null)
+            SetButtonActive(reviewOverlayCanvas.gameObject, showReviewButtons && recordingCanvas.gameObject.activeInHierarchy);
+        SetButtonActive(recordStatusPanel, !hideRecordingButtons && !showReviewButtons);
+        if (recordingStatusText != null)
+            recordingStatusText.text = isRecording ? "●  RECORDING   •   A to stop" : "A  •  Start recording";
+        if (reviewTitle != null)
+            reviewTitle.text = hasRecording ? "RECORDING READY" : "NO HITS RECORDED — CHOOSE RETAKE";
+        SetReviewButtonInteractable(playbackButton, hasRecording);
+        SetReviewButtonInteractable(saveButton, hasRecording);
 
         SetButtonActive(
             recordButton,
@@ -619,6 +726,20 @@ public class DrumRecorder : MonoBehaviour
             saveButton,
             showReviewButtons
         );
+    }
+
+    private void AttachRecordingStatusToHeadset()
+    {
+        if (recordingCanvas == null || recordingCanvas.worldCamera == null) return;
+        recordingCanvas.transform.SetParent(recordingCanvas.worldCamera.transform, false);
+        recordingCanvas.transform.localPosition = new Vector3(0f, -.05f, 1f);
+        recordingCanvas.transform.localScale = Vector3.one * .001f;
+    }
+
+    private void SetReviewButtonInteractable(GameObject buttonObject, bool interactable)
+    {
+        if (buttonObject != null && buttonObject.GetComponent<Button>() != null)
+            buttonObject.GetComponent<Button>().interactable = interactable;
     }
 
     private void SetButtonActive(
