@@ -19,6 +19,7 @@ public class QuestControllerMenuRay : MonoBehaviour
 
     public void Initialize(bool left, InputActionAsset inputActions)
     {
+        if (position != null) return; // One owned set of actions per ray.
         string path = left ? "<XRController>{LeftHand}" : "<XRController>{RightHand}";
         position = new InputAction("Menu Aim Position", InputActionType.Value, path + "/pointerPosition", expectedControlType: "Vector3");
         rotation = new InputAction("Menu Aim Rotation", InputActionType.Value, path + "/pointerRotation", expectedControlType: "Quaternion");
@@ -66,6 +67,18 @@ public class QuestControllerMenuRay : MonoBehaviour
     private void EnableActions()
     {
         position?.Enable(); rotation?.Enable(); trigger?.Enable(); triggerValue?.Enable(); scroll?.Enable();
+    }
+
+    public void RestoreUIInteraction()
+    {
+        if (!isActiveAndEnabled) return;
+        EnableActions();
+        var ray = GetComponent<XRRayInteractor>();
+        if (ray == null) return;
+        ray.enabled = true;
+        // Re-register and clear a stale UI pointer without creating another ray/input module.
+        ray.enableUIInteraction = false;
+        ray.enableUIInteraction = true;
     }
 
     private void OnEnable()

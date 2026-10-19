@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 public class DrumRecorder : MonoBehaviour
 {
@@ -213,6 +214,7 @@ public class DrumRecorder : MonoBehaviour
 
     public void StartRecording()
     {
+        if (isRecording || performanceTransitionActive || isPerformanceMode) return;
         StopReplay();
 
         recordedHits.Clear();
@@ -473,6 +475,13 @@ public class DrumRecorder : MonoBehaviour
         UpdateButtonVisibility();
     }
 
+    public void CancelPerformanceTransition()
+    {
+        performanceTransitionActive = false;
+        StopReplay();
+        StopPerformance();
+    }
+
     public void StartLoopedPerformance()
     {
         if (!hasRecording || recordedHits.Count == 0)
@@ -690,6 +699,19 @@ public class DrumRecorder : MonoBehaviour
             performanceTransitionActive ||
             isPerformanceMode;
 
+        // Proximity can reactivate the recording GameObject after returning to the seat.
+        // Retire its entire UI raycast surface while another stage owns the controls.
+        if (recordingCanvas != null)
+        {
+            recordingCanvas.enabled = !hideRecordingButtons;
+            var tracked = recordingCanvas.GetComponent<TrackedDeviceGraphicRaycaster>();
+            if (tracked != null) tracked.enabled = !hideRecordingButtons;
+#if UNITY_EDITOR
+            var desktop = recordingCanvas.GetComponent<GraphicRaycaster>();
+            if (desktop != null) desktop.enabled = !hideRecordingButtons;
+#endif
+        }
+
         bool showReviewButtons =
             !hideRecordingButtons &&
             hasCompletedTake &&
@@ -803,6 +825,7 @@ public class DrumRecorder : MonoBehaviour
 
     public void SaveRecording()
     {
+        if (performanceTransitionActive || isPerformanceMode) return;
         if (isRecording)
         {
             Debug.LogWarning(

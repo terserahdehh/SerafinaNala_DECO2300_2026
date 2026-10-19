@@ -19,7 +19,7 @@ public sealed class ProceduralDrummer : MonoBehaviour
         public Transform seatPoint;
         public Transform leftFootPoint, rightFootPoint;
         public Vector3 hipsOffset;
-        [Tooltip("Optional visual-only prefab, grip at origin, tip along local +Z. No physics or audio scripts.")]
+        [Tooltip("Musician-only visual prefab: grip at origin, tip along local +Z. Never assign a player/controller stick.")]
         public GameObject drumstickPrefab;
         public Vector3 leftGripOffset, rightGripOffset;
         public Vector3 leftGripEuler, rightGripEuler;
@@ -128,6 +128,8 @@ public sealed class ProceduralDrummer : MonoBehaviour
             !Chain(rig.leftThigh, rig.leftShin, rig.leftFoot) ||
             !Chain(rig.rightThigh, rig.rightShin, rig.rightFoot))
         { Debug.LogError("Drummer bones must form upper/lower/end descendant chains.", root); return false; }
+        var motion = root.GetComponent<CharacterMotion>();
+        if (motion != null) motion.SuspendForPerformance();
         musician = root;
         originalPosition = root.position; originalRotation = root.rotation;
         // Disable every Animator that could write this skeleton, remembering its state.
@@ -159,8 +161,8 @@ public sealed class ProceduralDrummer : MonoBehaviour
         // Calibrate stick axes from each imported wrist and forearm, retaining wrist roll.
         leftGrip = CalibrateGrip(rig.leftForearm, rig.leftHand) * Quaternion.Euler(rig.leftGripEuler);
         rightGrip = CalibrateGrip(rig.rightForearm, rig.rightHand) * Quaternion.Euler(rig.rightGripEuler);
-        CreateStick(rig.leftHand, rig.leftGripOffset, leftGrip);
-        CreateStick(rig.rightHand, rig.rightGripOffset, rightGrip);
+        CreateStick(rig.leftHand, rig.leftGripOffset, leftGrip, "Left");
+        CreateStick(rig.rightHand, rig.rightGripOffset, rightGrip, "Right");
         seated = true;
         Evaluate(0f);
         return true;
@@ -277,13 +279,18 @@ public sealed class ProceduralDrummer : MonoBehaviour
         hand.rotation = wristWorld;
     }
 
-    private void CreateStick(Transform hand, Vector3 offset, Quaternion gripRotation)
+    private void CreateStick(Transform hand, Vector3 offset, Quaternion gripRotation, string side)
     {
         // Build under an inactive grip so prefab audio/physics cannot activate before sanitising.
-        var grip = new GameObject("Procedural drumstick grip");
+        var grip = new GameObject(side + " musician drumstick grip");
         grip.SetActive(false);
         grip.transform.SetParent(hand, false);
-        if (rig.drumstickPrefab != null) Instantiate(rig.drumstickPrefab, grip.transform, false);
+        if (rig.drumstickPrefab != null)
+        {
+            var visual = Instantiate(rig.drumstickPrefab, grip.transform, false);
+            visual.name = side + " musician drumstick visual";
+            visual.SetActive(true);
+        }
         else
         {
             var shaft = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -299,21 +306,25 @@ public sealed class ProceduralDrummer : MonoBehaviour
         foreach (var c in grip.GetComponentsInChildren<Collider>(true)) c.enabled = false;
         foreach (var a in grip.GetComponentsInChildren<AudioSource>(true)) { a.Stop(); a.enabled = false; }
         foreach (var body in grip.GetComponentsInChildren<Rigidbody>(true))
-        { body.isKinematic = true; body.detectCollisions = false; }
+        { body.isKinematic = true; body.useGravity = false; body.detectCollisions = false; }
         grip.transform.localPosition = offset;
         grip.transform.localRotation = gripRotation;
         // Imported skeletons can be scaled; make stick dimensions world metres.
         Vector3 scale = hand.lossyScale;
-        grip.transform.localScale = new Vector3(1f / Mathf.Abs(scale.x), 1f / Mathf.Abs(scale.y), 1f / Mathf.Abs(scale.z));
+        grip.transform.localScale = new Vector3(InverseScale(scale.x), InverseScale(scale.y), InverseScale(scale.z));
         sticks.Add(grip);
         grip.SetActive(true);
     }
 
+    // Retain the sign to cancel mirrored import scale as well as its magnitude.
+    private static float InverseScale(float value) => Mathf.Abs(value) > .00001f ? 1f / value : 1f;
+
     public void Release()
     {
-        if (!seated) return;
+        // Deactivate immediately: Destroy is deferred until frame end, including on a repeated Seat.
         foreach (var go in sticks) if (go != null) { go.SetActive(false); Destroy(go); }
         sticks.Clear();
+        if (!seated) return;
         // Restore the original local bone pose, not the seated cache.
         foreach (var p in originalPose) if (p.bone != null) p.Restore();
         originalPose.Clear(); pose.Clear(); left.Clear(); right.Clear();
@@ -321,6 +332,7 @@ public sealed class ProceduralDrummer : MonoBehaviour
         for (int i = 0; i < animators.Length; i++)
             if (animators[i] != null) animators[i].enabled = animatorEnabled[i];
         seated = false;
+        if (musician != null) musician.GetComponent<CharacterMotion>()?.ResumeAfterPerformance();
     }
     private readonly List<Pose> originalPose = new List<Pose>();
     private void OnDisable() => Release();

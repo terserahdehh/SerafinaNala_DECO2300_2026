@@ -1,0 +1,126 @@
+47 isolated runtime checks passed; no post-change headset test.
+
+drum-tolerance-audit.log
+TOLERANCE_AUDIT existing overlap FloorTomHitZone / MidTomHitZone separationDepth=0.0257
+TOLERANCE_AUDIT existing overlap HighTomHitZone / SnareHitZone separationDepth=0.1556
+TOLERANCE_AUDIT existing overlap HihatHitZone / SnareHitZone separationDepth=0.1539
+TOLERANCE_AUDIT +20mm per face FloorTomHitZone overlaps MidTomHitZone
+TOLERANCE_AUDIT +20mm per face HighTomHitZone overlaps SnareHitZone
+TOLERANCE_AUDIT +20mm per face HihatHitZone overlaps SnareHitZone
+TOLERANCE_AUDIT +20mm per face MidTomHitZone overlaps FloorTomHitZone
+TOLERANCE_AUDIT +20mm per face SnareHitZone overlaps HighTomHitZone
+TOLERANCE_AUDIT +20mm per face SnareHitZone overlaps HihatHitZone
+
+all-drum-tolerance-candidate.log
+TOLERANCE SKIP FloorTomHitZone axis=0 sign=-1 reason=would deepen overlap
+TOLERANCE ADD FloorTomHitZone axis=0 sign=1 20mm
+TOLERANCE ADD FloorTomHitZone axis=1 sign=-1 20mm
+TOLERANCE ADD FloorTomHitZone axis=1 sign=1 20mm
+TOLERANCE ADD FloorTomHitZone axis=2 sign=-1 20mm
+TOLERANCE ADD FloorTomHitZone axis=2 sign=1 20mm
+TOLERANCE BOX FloorTomHitZone oldSize=(0.4503, 0.4098, 0.7995) newSize=(0.4703, 0.4498, 0.8395)
+TOLERANCE SKIP HighTomHitZone axis=0 sign=-1 reason=would deepen overlap
+TOLERANCE ADD HighTomHitZone axis=0 sign=1 20mm
+TOLERANCE ADD HighTomHitZone axis=1 sign=-1 20mm
+TOLERANCE ADD HighTomHitZone axis=1 sign=1 20mm
+TOLERANCE ADD HighTomHitZone axis=2 sign=-1 20mm
+TOLERANCE ADD HighTomHitZone axis=2 sign=1 20mm
+TOLERANCE BOX HighTomHitZone oldSize=(0.2370, 1.6422, 1.0792) newSize=(0.2570, 1.6822, 1.1192)
+TOLERANCE ADD HihatHitZone axis=0 sign=-1 20mm
+TOLERANCE SKIP HihatHitZone axis=0 sign=1 reason=would deepen overlap
+TOLERANCE ADD HihatHitZone axis=1 sign=-1 20mm
+TOLERANCE ADD HihatHitZone axis=1 sign=1 20mm
+TOLERANCE ADD HihatHitZone axis=2 sign=-1 20mm
+TOLERANCE ADD HihatHitZone axis=2 sign=1 20mm
+TOLERANCE BOX HihatHitZone oldSize=(0.6045, 0.5760, 0.8489) newSize=(0.6245, 0.6160, 0.8889)
+TOLERANCE ADD MidTomHitZone axis=0 sign=-1 20mm
+TOLERANCE SKIP MidTomHitZone axis=0 sign=1 reason=would deepen overlap
+TOLERANCE ADD MidTomHitZone axis=1 sign=-1 20mm
+TOLERANCE ADD MidTomHitZone axis=1 sign=1 20mm
+TOLERANCE ADD MidTomHitZone axis=2 sign=-1 20mm
+TOLERANCE ADD MidTomHitZone axis=2 sign=1 20mm
+TOLERANCE BOX MidTomHitZone oldSize=(0.2370, 1.6422, 1.0792) newSize=(0.2570, 1.6822, 1.1192)
+TOLERANCE SKIP SnareHitZone axis=0 sign=-1 reason=would deepen overlap
+TOLERANCE SKIP SnareHitZone axis=0 sign=1 reason=would deepen overlap
+TOLERANCE ADD SnareHitZone axis=1 sign=-1 20mm
+TOLERANCE ADD SnareHitZone axis=1 sign=1 20mm
+TOLERANCE ADD SnareHitZone axis=2 sign=-1 20mm
+TOLERANCE ADD SnareHitZone axis=2 sign=1 20mm
+TOLERANCE BOX SnareHitZone oldSize=(0.3804, 0.6288, 0.3799) newSize=(0.3804, 0.6688, 0.4199)
+TOLERANCE CYMBAL added 20mm vertical each way; reach unchanged
+TOLERANCE PAIR CymbalHitZone / FloorTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR CymbalHitZone / HighTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR CymbalHitZone / HihatHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR CymbalHitZone / MidTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR CymbalHitZone / SnareHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR FloorTomHitZone / HighTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR FloorTomHitZone / HihatHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR FloorTomHitZone / MidTomHitZone before=0.02573 after=0.02573
+TOLERANCE PAIR FloorTomHitZone / SnareHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR HighTomHitZone / HihatHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR HighTomHitZone / MidTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR HighTomHitZone / SnareHitZone before=0.15561 after=0.15561
+TOLERANCE PAIR HihatHitZone / MidTomHitZone before=0.00000 after=0.00000
+TOLERANCE PAIR HihatHitZone / SnareHitZone before=0.15392 after=0.15393
+TOLERANCE PAIR MidTomHitZone / SnareHitZone before=0.00000 after=0.00000
+TOLERANCE ALL SAFE
+
+all-drum-tolerance-audio.log
+RESTORE PASS listener unpaused and unmuted
+RESTORE PASS one active audio listener
+RESTORE PASS CymbalHitZone source/clip enabled and unmuted
+RESTORE PASS CymbalHitZone decoded clip has nonzero PCM
+RESTORE CYMBAL player-facing tolerance contact distance=0.8329447
+RESTORE PASS CymbalHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP CymbalHitZone max=0.0225455 sourcePlaying=True
+RESTORE PASS CymbalHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS CymbalHitZone sustained overlap does not double-record
+RESTORE PASS FloorTomHitZone source/clip enabled and unmuted
+RESTORE PASS FloorTomHitZone decoded clip has nonzero PCM
+RESTORE PASS FloorTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP FloorTomHitZone max=0.995361 sourcePlaying=True
+RESTORE PASS FloorTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS FloorTomHitZone sustained overlap does not double-record
+RESTORE PASS HighTomHitZone source/clip enabled and unmuted
+RESTORE PASS HighTomHitZone decoded clip has nonzero PCM
+RESTORE PASS HighTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP HighTomHitZone max=0.411957 sourcePlaying=True
+RESTORE PASS HighTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS HighTomHitZone sustained overlap does not double-record
+RESTORE PASS HihatHitZone source/clip enabled and unmuted
+RESTORE PASS HihatHitZone decoded clip has nonzero PCM
+RESTORE PASS HihatHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP HihatHitZone max=0.0630188 sourcePlaying=True
+RESTORE PASS HihatHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS HihatHitZone sustained overlap does not double-record
+RESTORE PASS KickPedal source/clip enabled and unmuted
+RESTORE PASS KickPedal decoded clip has nonzero PCM
+RESTORE PEDAL component=True canvasActive=True triggerB=True
+RESTORE PEDAL keyboardPressed=True held=True enabled=True
+RESTORE PASS KickPedal existing B pedal input dispatches and records
+RESTORE DSP KickPedal max=0.993897 sourcePlaying=True
+RESTORE PASS KickPedal nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS MidTomHitZone source/clip enabled and unmuted
+RESTORE PASS MidTomHitZone decoded clip has nonzero PCM
+RESTORE PASS MidTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP MidTomHitZone max=0.995422 sourcePlaying=True
+RESTORE PASS MidTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS MidTomHitZone sustained overlap does not double-record
+RESTORE PASS SnareHitZone source/clip enabled and unmuted
+RESTORE PASS SnareHitZone decoded clip has nonzero PCM
+RESTORE PASS SnareHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP SnareHitZone max=0.122345 sourcePlaying=True
+RESTORE PASS SnareHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS SnareHitZone sustained overlap does not double-record
+RESTORE PASS left drumstick tip assisted strike 1 records exactly one cymbal
+RESTORE PASS left drumstick tip assisted strike 2 records exactly one cymbal
+RESTORE PASS left drumstick tip assisted strike 3 records exactly one cymbal
+RESTORE PASS left drumstick tip assisted strike 4 records exactly one cymbal
+RESTORE PASS left drumstick tip assisted strike 5 records exactly one cymbal
+RESTORE PASS right drumstick tip assisted strike 1 records exactly one cymbal
+RESTORE PASS right drumstick tip assisted strike 2 records exactly one cymbal
+RESTORE PASS right drumstick tip assisted strike 3 records exactly one cymbal
+RESTORE PASS right drumstick tip assisted strike 4 records exactly one cymbal
+RESTORE PASS right drumstick tip assisted strike 5 records exactly one cymbal
+RESTORE PASS all drum entries including ten assisted cymbal hits traverse unchanged replay scheduler
+RESTORE ALL SOUND PATH CHECKS PASSED assertions=47

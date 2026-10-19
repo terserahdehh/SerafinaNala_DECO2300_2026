@@ -1,0 +1,64 @@
+No APK built; no headset audibility claim.
+37 local sound-path assertions passed.
+
+Before:
+SOUND_PROBE physical trigger with tip stationary after sampled pose hits=0
+SOUND_PROBE queued before LateUpdate=1
+SOUND_PROBE hits after LateUpdate=0
+SOUND_PROBE source active=True enabled=True clip=snare listenerPause=False listenerVolume=1
+
+Restored:
+RESTORE PASS listener unpaused and unmuted
+RESTORE PASS one active audio listener
+RESTORE PASS CymbalHitZone source/clip enabled and unmuted
+RESTORE PASS CymbalHitZone decoded clip has nonzero PCM
+RECORDED HIT: cymbal AT 0
+RESTORE PASS CymbalHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP CymbalHitZone max=0.0225455 sourcePlaying=True
+RESTORE PASS CymbalHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS CymbalHitZone sustained overlap does not double-record
+RESTORE PASS FloorTomHitZone source/clip enabled and unmuted
+RESTORE PASS FloorTomHitZone decoded clip has nonzero PCM
+RECORDED HIT: floor tom AT 0.435443
+RESTORE PASS FloorTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP FloorTomHitZone max=0.995361 sourcePlaying=True
+RESTORE PASS FloorTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS FloorTomHitZone sustained overlap does not double-record
+RESTORE PASS HighTomHitZone source/clip enabled and unmuted
+RESTORE PASS HighTomHitZone decoded clip has nonzero PCM
+RECORDED HIT: high tom AT 0.8232419
+RESTORE PASS HighTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP HighTomHitZone max=0.411957 sourcePlaying=True
+RESTORE PASS HighTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS HighTomHitZone sustained overlap does not double-record
+RESTORE PASS HihatHitZone source/clip enabled and unmuted
+RESTORE PASS HihatHitZone decoded clip has nonzero PCM
+RECORDED HIT: hihat AT 1.208247
+RESTORE PASS HihatHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP HihatHitZone max=0.0739441 sourcePlaying=True
+RESTORE PASS HihatHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS HihatHitZone sustained overlap does not double-record
+RESTORE PASS KickPedal source/clip enabled and unmuted
+RESTORE PASS KickPedal decoded clip has nonzero PCM
+RESTORE PEDAL component=True canvasActive=True triggerB=True
+RESTORE PEDAL keyboardPressed=True held=True enabled=True
+RECORDED HIT: pedal AT 1.592439
+RESTORE PASS KickPedal existing B pedal input dispatches and records
+RESTORE DSP KickPedal max=0.993897 sourcePlaying=True
+RESTORE PASS KickPedal nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS MidTomHitZone source/clip enabled and unmuted
+RESTORE PASS MidTomHitZone decoded clip has nonzero PCM
+RECORDED HIT: mid tom AT 1.983139
+RESTORE PASS MidTomHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP MidTomHitZone max=0.995422 sourcePlaying=True
+RESTORE PASS MidTomHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS MidTomHitZone sustained overlap does not double-record
+RESTORE PASS SnareHitZone source/clip enabled and unmuted
+RESTORE PASS SnareHitZone decoded clip has nonzero PCM
+RECORDED HIT: snare AT 2.368445
+RESTORE PASS SnareHitZone real physics trigger immediately accepts and records correct clip
+RESTORE DSP SnareHitZone max=0.122345 sourcePlaying=True
+RESTORE PASS SnareHitZone nonzero listener DSP output (does not establish headset audibility)
+RESTORE PASS SnareHitZone sustained overlap does not double-record
+RESTORE PASS all seven drum entries traverse unchanged replay scheduler
+RESTORE ALL SOUND PATH CHECKS PASSED assertions=37

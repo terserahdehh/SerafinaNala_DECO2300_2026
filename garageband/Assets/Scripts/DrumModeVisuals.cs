@@ -82,15 +82,17 @@ public class DrumModeVisuals : MonoBehaviour
         ApplyCurrentMode();
         var origin = FindFirstObjectByType<XROrigin>();
         if (origin == null) return;
-        if (active && leftMenuRay == null)
-        {
-            leftMenuRay = CreateMenuRay(origin, true);
-            rightMenuRay = CreateMenuRay(origin, false);
-        }
+        if (active && leftMenuRay == null) leftMenuRay = CreateMenuRay(origin, true);
+        if (active && rightMenuRay == null) rightMenuRay = CreateMenuRay(origin, false);
         foreach (var ray in origin.GetComponentsInChildren<NearFarInteractor>(true))
             ray.enabled = !active;
         if (leftMenuRay != null) leftMenuRay.SetActive(active);
         if (rightMenuRay != null) rightMenuRay.SetActive(active);
+        if (active)
+        {
+            leftMenuRay?.GetComponent<QuestControllerMenuRay>()?.RestoreUIInteraction();
+            rightMenuRay?.GetComponent<QuestControllerMenuRay>()?.RestoreUIInteraction();
+        }
     }
 
     private GameObject CreateMenuRay(XROrigin origin, bool left)

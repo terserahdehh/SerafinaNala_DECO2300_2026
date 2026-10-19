@@ -648,16 +648,58 @@ MonoBehaviour:
   renAnimator: {fileID: 0}
   mikaRig:
     animator: {fileID: 0}
+    hips: {fileID: 0}
+    spine: {fileID: 0}
+    leftUpperArm: {fileID: 0}
+    leftForearm: {fileID: 0}
+    leftHand: {fileID: 0}
+    rightUpperArm: {fileID: 0}
+    rightForearm: {fileID: 0}
+    rightHand: {fileID: 0}
+    leftThigh: {fileID: 0}
+    leftShin: {fileID: 0}
+    leftFoot: {fileID: 0}
+    rightThigh: {fileID: 0}
+    rightShin: {fileID: 0}
+    rightFoot: {fileID: 0}
     seatPoint: {fileID: 1900000001}
+    leftFootPoint: {fileID: 0}
+    rightFootPoint: {fileID: 0}
     hipsOffset: {x: 0, y: 0, z: 0}
+    drumstickPrefab: {fileID: 8392509960077793285, guid: a93bf6e9f2191469dbc380097086eaa3, type: 3}
+    leftGripOffset: {x: -0.004, y: 0.040, z: -0.009}
+    rightGripOffset: {x: 0.004, y: 0.040, z: -0.009}
+    leftGripEuler: {x: 0, y: 0, z: -8}
+    rightGripEuler: {x: 0, y: 0, z: 8}
     stickLength: 0.34
     liftHeight: 0.18
     strikeDuration: 0.09
     recoveryDuration: 0.18
   renRig:
     animator: {fileID: 0}
+    hips: {fileID: 0}
+    spine: {fileID: 0}
+    leftUpperArm: {fileID: 0}
+    leftForearm: {fileID: 0}
+    leftHand: {fileID: 0}
+    rightUpperArm: {fileID: 0}
+    rightForearm: {fileID: 0}
+    rightHand: {fileID: 0}
+    leftThigh: {fileID: 0}
+    leftShin: {fileID: 0}
+    leftFoot: {fileID: 0}
+    rightThigh: {fileID: 0}
+    rightShin: {fileID: 0}
+    rightFoot: {fileID: 0}
     seatPoint: {fileID: 1900000001}
+    leftFootPoint: {fileID: 0}
+    rightFootPoint: {fileID: 0}
     hipsOffset: {x: 0, y: 0, z: 0}
+    drumstickPrefab: {fileID: 8392509960077793285, guid: a93bf6e9f2191469dbc380097086eaa3, type: 3}
+    leftGripOffset: {x: -0.003, y: 0.036, z: -0.008}
+    rightGripOffset: {x: 0.003, y: 0.036, z: -0.008}
+    leftGripEuler: {x: 0, y: 0, z: -4}
+    rightGripEuler: {x: 0, y: 0, z: 4}
     stickLength: 0.34
     liftHeight: 0.18
     strikeDuration: 0.09
@@ -727,7 +769,7 @@ Transform:
   m_GameObject: {fileID: 213245529}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 5.236}
+  m_LocalPosition: {x: 0, y: 0, z: 4.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -779,7 +821,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &213245533
 MonoBehaviour:
@@ -1251,8 +1293,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0843918, y: 1.0243568, z: 1.0370634}
+  m_Center: {x: -0.0421959, y: 0, z: 0}
 --- !u!1 &392170849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,8 +1818,8 @@ Transform:
   m_GameObject: {fileID: 474487840}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.26, y: -0.55, z: 6.11}
-  m_LocalScale: {x: 0.42494, y: 1, z: 0.28397}
+  m_LocalPosition: {x: 0, y: 0, z: 4.86}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 407090796}
@@ -1841,7 +1883,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 4
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &488741263
 GameObject:
@@ -2007,8 +2049,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0843918, y: 1.0243568, z: 1.0370634}
+  m_Center: {x: 0.0421959, y: 0, z: 0}
 --- !u!1 &491698873
 GameObject:
   m_ObjectHideFlags: 0
@@ -2966,8 +3008,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0330867, y: 1.0694494, z: 1.0471213}
+  m_Center: {x: -0.016543353, y: 0, z: 0}
 --- !u!1 &596430374 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4934441377213567720, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
@@ -5280,6 +5322,8 @@ MonoBehaviour:
     you create!"
   - "Hey, I\u2019m Ren. I\u2019m a drummer too. Choose me, and I\u2019ll perform
     your beat exactly as you played it."
+  humanoidWalk: {fileID: 7400000, guid: 2c9a8144402ebd6439141e618b22b68f, type: 2}
+  humanoidIdle: {fileID: 7400000, guid: 8ee57e38e73687a46aa6f32c4fa9d062, type: 2}
   character: {fileID: 313663797}
   greetingPoint: {fileID: 577356771}
   musiciansWaypoint: {fileID: 873071772}
@@ -6529,7 +6573,7 @@ MonoBehaviour:
   rightControllerVisual: {fileID: 1219124267}
   leftDrumstick: {fileID: 407090795}
   rightDrumstick: {fileID: 2056688481}
-  menuInputActions: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  menuInputActions: {fileID: 0}
 --- !u!114 &1379696127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7653,7 +7697,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1, y: 1.0636177, z: 1.1052823}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1548251155
 GameObject:
@@ -9861,6 +9905,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1865796041}
   - component: {fileID: 1865796044}
+  - component: {fileID: 1865796045}
   - component: {fileID: 1865796043}
   - component: {fileID: 1865796042}
   m_Layer: 0
@@ -9878,9 +9923,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865796040}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0051886165, y: -0.70708776, z: -0.7070878, w: -0.005188551}
-  m_LocalPosition: {x: -0.0107, y: 0.00615, z: 0.01851}
-  m_LocalScale: {x: 0.009697849, y: 0.0091954, z: 0.015423121}
+  m_LocalRotation: {x: 0.27445498, y: 0.19380799, z: -0.06376351, w: 0.93970597}
+  m_LocalPosition: {x: -0.010366897, y: 0.0069873785, z: 0.01588488}
+  m_LocalScale: {x: 0.016666668, y: 0.016666668, z: 0.016666668}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 372942750}
@@ -9910,7 +9955,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 2ed6b1993024841b3adf8c4c5efae403, type: 3}
+  m_Resource: {fileID: 8300000, guid: 080f67ce418d8453fb4f8ef8aebe590e, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -9996,8 +10041,8 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!65 &1865796044
-BoxCollider:
+--- !u!64 &1865796044
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10014,9 +10059,10 @@ BoxCollider:
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 1c8272b0e8e7d404abb3a5bdb974c0f6, type: 2}
 --- !u!1 &1893007332
 GameObject:
   m_ObjectHideFlags: 0
@@ -10095,6 +10141,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1893007332}
   m_CullTransparentMesh: 1
+--- !u!1 &1900000000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1900000001}
+  m_Layer: 0
+  m_Name: Musician Seat Point (calibrate hips)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1900000001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.58, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 721550703}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1906575639
 GameObject:
   m_ObjectHideFlags: 0
@@ -10257,7 +10334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.54901963}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10281,7 +10358,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915651299}
-  m_CullTransparentMesh: 1
+  m_CullTransparentMesh: 0
 --- !u!1001 &1925614134
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10554,8 +10631,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0444198, y: 1.0976028, z: 1.0500307}
+  m_Center: {x: 0.022209883, y: 0, z: 0}
 --- !u!1001 &2004089984
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11406,37 +11483,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!1 &1900000000
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1900000001}
-  m_Layer: 0
-  m_Name: Musician Seat Point (calibrate hips)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1900000001
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1900000000}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.58, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 721550703}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -11469,3 +11515,18 @@ SceneRoots:
   - {fileID: 209834333}
   - {fileID: 983248807}
   - {fileID: 522384878}
+--- !u!114 &1865796045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865796040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fd0b3f9986f45a1ac9c9c3075603a5f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CymbalStrikeSurface
+  radii: {x: 0.255, y: 0.255}
+  minimumStrikeSpeed: 0.08
+  bellHeight: 0.043

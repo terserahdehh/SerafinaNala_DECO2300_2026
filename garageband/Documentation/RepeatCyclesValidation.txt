@@ -1,0 +1,110 @@
+Unity 6000.3.20f1 isolated Play Mode verification, 19 October 2026
+Editor compilation: passed
+Player code compilation (UNITY_EDITOR excluded): passed
+No APK build
+
+PROBE PASS character standing/walking component wired
+PROBE PASS character uses compatible clips or named-bone fallback
+PROBE PASS character idle has no root motion
+PROBE PASS character idle arms are lowered
+PROBE PASS character walking follows actual displacement
+PROBE PASS character walking blends to idle without drift
+PROBE PASS mika standing/walking component wired
+PROBE PASS mika uses compatible clips or named-bone fallback
+PROBE PASS mika idle has no root motion
+PROBE PASS mika idle arms are lowered
+PROBE PASS mika walking follows actual displacement
+PROBE PASS mika walking blends to idle without drift
+PROBE PASS ren standing/walking component wired
+PROBE PASS ren uses compatible clips or named-bone fallback
+PROBE PASS ren idle has no root motion
+PROBE PASS ren idle arms are lowered
+PROBE PASS ren walking follows actual displacement
+PROBE PASS ren walking blends to idle without drift
+PROBE PASS ren preserves imported model transform
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 1 overlapping Save/transition rejected
+PROBE STATE cycle=1 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 1 pause click
+PROBE PASS cycle 1 standing motion yields to drumming
+PROBE PASS cycle 1 pause freezes drummer with no idle writer
+PROBE PASS cycle 1 recording UI cannot intercept performance rays
+PROBE PASS cycle 1 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 1 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 1 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 2 overlapping Save/transition rejected
+PROBE STATE cycle=2 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 2 pause click
+PROBE PASS cycle 2 standing motion yields to drumming
+PROBE PASS cycle 2 pause freezes drummer with no idle writer
+PROBE PASS Help blocks performance controls
+PROBE PASS Help close restores performance controls
+PROBE PASS cycle 2 recording UI cannot intercept performance rays
+PROBE PASS cycle 2 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 2 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 2 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 3 overlapping Save/transition rejected
+PROBE STATE cycle=3 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 3 pause click
+PROBE PASS cycle 3 standing motion yields to drumming
+PROBE PASS cycle 3 pause freezes drummer with no idle writer
+PROBE PASS cycle 3 recording UI cannot intercept performance rays
+PROBE PASS cycle 3 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 3 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 3 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 4 overlapping Save/transition rejected
+PROBE STATE cycle=4 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 4 pause click
+PROBE PASS cycle 4 standing motion yields to drumming
+PROBE PASS cycle 4 pause freezes drummer with no idle writer
+PROBE PASS cycle 4 recording UI cannot intercept performance rays
+PROBE PASS cycle 4 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 4 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 4 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 5 overlapping Save/transition rejected
+PROBE STATE cycle=5 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 5 pause click
+PROBE PASS cycle 5 standing motion yields to drumming
+PROBE PASS cycle 5 pause freezes drummer with no idle writer
+PROBE PASS Help blocks performance controls
+PROBE PASS Help close restores performance controls
+PROBE PASS cycle 5 recording UI cannot intercept performance rays
+PROBE PASS cycle 5 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 5 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 5 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 6 overlapping Save/transition rejected
+PROBE STATE cycle=6 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 6 pause click
+PROBE PASS cycle 6 standing motion yields to drumming
+PROBE PASS cycle 6 pause freezes drummer with no idle writer
+PROBE PASS cycle 6 recording UI cannot intercept performance rays
+PROBE PASS cycle 6 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 6 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 6 delete click
+PROBE PASS listeners do not accumulate
+PROBE PASS exactly two menu rays after six cycles
+PROBE PASS one XR UI input module
+PROBE ALL CYCLES AND LOCOMOTION PASSED

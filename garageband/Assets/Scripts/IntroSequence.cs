@@ -26,6 +26,17 @@ public class IntroSequence : MonoBehaviour
     [TextArea(2, 5)]
     private string[] musiciansDialogues;
 
+    [Header("Standing and Walking Animation")]
+    [SerializeField] private AnimationClip humanoidWalk;
+    [SerializeField] private AnimationClip humanoidIdle;
+
+    private void Awake()
+    {
+        CharacterMotion.Attach(character, characterAnimator, humanoidWalk, humanoidIdle, CharacterMotion.StandingStyle.Maya);
+        CharacterMotion.Attach(mika, mikaAnimator, humanoidWalk, humanoidIdle, CharacterMotion.StandingStyle.Mika);
+        CharacterMotion.Attach(ren, renAnimator, humanoidWalk, humanoidIdle);
+    }
+
     [Header("Ms Maya")]
     [SerializeField] private Transform character;
     [SerializeField] private Transform greetingPoint;
@@ -345,9 +356,6 @@ public class IntroSequence : MonoBehaviour
         bool renStartedWalking = false;
         bool renHasDisappeared = false;
 
-        SetMusicianWalking(mikaAnimator, true);
-        SetMusicianWalking(renAnimator, false);
-
         while (
             !mikaHasDisappeared ||
             !renHasDisappeared
@@ -372,11 +380,6 @@ public class IntroSequence : MonoBehaviour
                 )
                 {
                     renStartedWalking = true;
-
-                    SetMusicianWalking(
-                        renAnimator,
-                        true
-                    );
                 }
 
                 if (
@@ -386,21 +389,11 @@ public class IntroSequence : MonoBehaviour
                 {
                     mikaHasDisappeared = true;
 
-                    SetMusicianWalking(
-                        mikaAnimator,
-                        false
-                    );
-
                     mika.gameObject.SetActive(false);
 
                     if (!renStartedWalking)
                     {
                         renStartedWalking = true;
-
-                        SetMusicianWalking(
-                            renAnimator,
-                            true
-                        );
                     }
                 }
             }
@@ -427,11 +420,6 @@ public class IntroSequence : MonoBehaviour
                 )
                 {
                     renHasDisappeared = true;
-
-                    SetMusicianWalking(
-                        renAnimator,
-                        false
-                    );
 
                     ren.gameObject.SetActive(false);
                 }
@@ -469,13 +457,9 @@ public class IntroSequence : MonoBehaviour
             TurnTowards(destination)
         );
 
-        SetWalking(true);
-
         yield return StartCoroutine(
             MoveCharacter(destination)
         );
-
-        SetWalking(false);
 
         if (playerCamera != null)
         {
@@ -634,20 +618,6 @@ public class IntroSequence : MonoBehaviour
         return yawDifference * rotationTarget.rotation;
     }
 
-    private void SetMusicianWalking(
-        Animator musicianAnimator,
-        bool isWalking
-    )
-    {
-        if (musicianAnimator != null)
-        {
-            musicianAnimator.SetBool(
-                "IsWalking",
-                isWalking
-            );
-        }
-    }
-
     private IEnumerator BeginCharacterEntrance()
     {
         yield return new WaitForSeconds(startDelay);
@@ -668,13 +638,9 @@ public class IntroSequence : MonoBehaviour
             TurnTowards(destination)
         );
 
-        SetWalking(true);
-
         yield return StartCoroutine(
             MoveCharacter(destination)
         );
-
-        SetWalking(false);
 
         if (playerCamera != null)
         {
@@ -701,13 +667,9 @@ public class IntroSequence : MonoBehaviour
                 approachDestination.y =
                     character.position.y;
 
-                SetWalking(true);
-
                 yield return StartCoroutine(
                     MoveCharacter(approachDestination)
                 );
-
-                SetWalking(false);
 
                 yield return StartCoroutine(
                     TurnTowards(playerCamera.position)
@@ -960,15 +922,11 @@ public class IntroSequence : MonoBehaviour
             TurnTowards(waypointDestination)
         );
 
-        SetWalking(true);
-
         yield return StartCoroutine(
             MoveCharacterAndPlayer(
                 waypointDestination
             )
         );
-
-        SetWalking(false);
 
         yield return new WaitForSeconds(
             waypointPause
@@ -984,15 +942,11 @@ public class IntroSequence : MonoBehaviour
             TurnTowards(finalDestination)
         );
 
-        SetWalking(true);
-
         yield return StartCoroutine(
             MoveCharacterAndPlayer(
                 finalDestination
             )
         );
-
-        SetWalking(false);
 
         yield return StartCoroutine(
             MovePlayerToStopPoint()
@@ -1157,14 +1111,4 @@ public class IntroSequence : MonoBehaviour
         character.rotation = targetRotation;
     }
 
-    private void SetWalking(bool isWalking)
-    {
-        if (characterAnimator != null)
-        {
-            characterAnimator.SetBool(
-                "IsWalking",
-                isWalking
-            );
-        }
-    }
 }

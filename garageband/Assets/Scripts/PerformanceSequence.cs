@@ -55,6 +55,8 @@ public class PerformanceSequence : MonoBehaviour
     private Transform selectedMusician;
 
     private Canvas performanceCanvas;
+    private CanvasGroup performanceUIGroup;
+    private Coroutine transitionCoroutine;
 
     private bool sequenceRunning;
     private bool performanceActive;
@@ -85,10 +87,12 @@ public class PerformanceSequence : MonoBehaviour
 
     private void PreparePerformanceUI()
     {
-        if (performanceControls == null || xrOrigin == null || xrOrigin.Camera == null) return;
+        if (performanceCanvas != null || performanceControls == null || xrOrigin == null || xrOrigin.Camera == null) return;
         performanceCanvas = QuestUI.CreateCanvas("Performance Controls Canvas", xrOrigin.Camera,
             new Vector2(950f, 430f), 150);
         performanceCanvas.transform.SetParent(xrOrigin.transform, false);
+        performanceUIGroup = performanceCanvas.gameObject.AddComponent<CanvasGroup>();
+        SetPerformanceUI(false);
         QuestUI.Layout(performanceControls.GetComponent<RectTransform>(), performanceCanvas.transform,
             Vector2.zero, new Vector2(950f, 430f));
         var buttons = performanceControls.GetComponentsInChildren<Button>(true);
@@ -113,7 +117,7 @@ public class PerformanceSequence : MonoBehaviour
 
     public void BeginPerformance()
     {
-        if (sequenceRunning || performanceActive)
+        if (sequenceRunning || performanceActive || transitionCoroutine != null)
             return;
 
         if (
@@ -135,15 +139,12 @@ public class PerformanceSequence : MonoBehaviour
 
         drumRecorder.BeginPerformanceTransition();
 
-        StartCoroutine(
-            BeginPerformanceRoutine()
-        );
+        transitionCoroutine = StartCoroutine(BeginPerformanceRoutine());
     }
 
     private IEnumerator BeginPerformanceRoutine()
     {
-        if (performanceControls != null)
-            performanceControls.SetActive(false);
+        SetPerformanceUI(false);
 
         yield return new WaitForSeconds(
             delayAfterSave
@@ -181,16 +182,11 @@ public class PerformanceSequence : MonoBehaviour
 
         blackoutCanvasGroup.blocksRaycasts = false;
 
-        performanceActive = true;
-        sequenceRunning = false;
-
-        if (performanceCanvas != null)
-            QuestUI.PlaceInFront(performanceCanvas, xrOrigin.Camera, new Vector3(0f, 0f, 1.1f));
-        if (performanceControls != null)
-            performanceControls.SetActive(true);
-
         drumRecorder.StartLoopedPerformance();
-
+        performanceActive = drumRecorder.IsPerformanceMode;
+        sequenceRunning = false;
+        transitionCoroutine = null;
+        RestorePerformanceInteraction();
         UpdatePauseButtonIcon(false);
 
         Debug.Log(
@@ -202,6 +198,7 @@ public class PerformanceSequence : MonoBehaviour
     {
         if (
             !performanceActive ||
+            sequenceRunning ||
             drumRecorder == null
         )
         {
@@ -220,7 +217,7 @@ public class PerformanceSequence : MonoBehaviour
     {
         if (
             !performanceActive ||
-            sequenceRunning
+            sequenceRunning || transitionCoroutine != null
         )
         {
             return;
@@ -228,15 +225,13 @@ public class PerformanceSequence : MonoBehaviour
 
         sequenceRunning = true;
 
-        StartCoroutine(
-            DeleteAndReturnRoutine()
-        );
+        performanceActive = false;
+        transitionCoroutine = StartCoroutine(DeleteAndReturnRoutine());
     }
 
     private IEnumerator DeleteAndReturnRoutine()
     {
-        if (performanceControls != null)
-            performanceControls.SetActive(false);
+        SetPerformanceUI(false);
 
         drumRecorder.StopPerformance();
         drumRecorder.BeginPerformanceTransition();
@@ -283,10 +278,61 @@ public class PerformanceSequence : MonoBehaviour
 
         performanceActive = false;
         sequenceRunning = false;
+        transitionCoroutine = null;
 
         Debug.Log(
             "RETURNED TO DRUM SEAT. PRESS A TO RECORD"
         );
+    }
+
+    private void SetPerformanceUI(bool visible)
+    {
+        if (performanceControls != null) performanceControls.SetActive(visible);
+        if (performanceUIGroup == null) return;
+        performanceUIGroup.alpha = visible ? 1f : 0f;
+        performanceUIGroup.interactable = visible;
+        performanceUIGroup.blocksRaycasts = visible;
+    }
+
+    private void RestorePerformanceInteraction()
+    {
+        PreparePerformanceUI();
+        blackoutCanvasGroup.alpha = 0f;
+        blackoutCanvasGroup.blocksRaycasts = false;
+        blackoutCanvasGroup.interactable = false;
+        if (drumModeVisuals != null) drumModeVisuals.DisableDrumMode();
+        if (performanceCanvas == null) return;
+        performanceCanvas.gameObject.SetActive(true);
+        performanceCanvas.enabled = true;
+        QuestUI.ConfigureCanvas(performanceCanvas, xrOrigin.Camera, new Vector2(950f, 430f), 150);
+        QuestUI.PlaceInFront(performanceCanvas, xrOrigin.Camera, new Vector3(0f, 0f, 1.1f));
+        foreach (var button in performanceControls.GetComponentsInChildren<Button>(true))
+        {
+            button.interactable = true;
+            if (button.targetGraphic != null) button.targetGraphic.raycastTarget = true;
+        }
+        SetPerformanceUI(performanceActive);
+        // Restoring a performance must never bypass an open Help modal.
+        var help = FindFirstObjectByType<HelpMenu>();
+        if (help != null && help.IsOpen && performanceUIGroup != null)
+        {
+            performanceUIGroup.alpha = 0f;
+            performanceUIGroup.interactable = false;
+            performanceUIGroup.blocksRaycasts = false;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (transitionCoroutine != null) StopCoroutine(transitionCoroutine);
+        transitionCoroutine = null;
+        sequenceRunning = false;
+        performanceActive = false;
+        SetPerformanceUI(false);
+        if (selectedDrummer != null) selectedDrummer.Release();
+        if (drumRecorder != null) drumRecorder.CancelPerformanceTransition();
+        if (blackoutCanvasGroup != null)
+        { blackoutCanvasGroup.alpha = 0f; blackoutCanvasGroup.blocksRaycasts = false; }
     }
 
     private void PlaceSelectedMusician()

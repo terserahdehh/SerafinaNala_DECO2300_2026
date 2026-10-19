@@ -1,0 +1,14 @@
+Quest package com.DefaultCompany.VRTemplate version 11, process 28005.
+Captured native app/session/audio events; no gameplay HIT or RECORDED HIT messages.
+No individual tip/contact/acceptance/audio/record event chain can be reconstructed from this capture.
+
+08-21 01:58:01.603 28005 28039 I Unity   : Handle cmd APP_CMD_RESUME(12)
+08-21 01:58:01.604 28005 28039 I Unity   : Handle cmd APP_CMD_GAINED_FOCUS(7)
+08-21 01:58:01.629 28005 28039 D AAudioStream: setState(s#1) from 10 to 3
+08-21 01:58:01.718 28005 28104 D AAudioStream: setState(s#1) from 3 to 4
+08-21 01:58:01.773 28005 28039 I OpenXR_SessionImpl: PostSessionStateChange:[pid: 28005] XR_SESSION_STATE_VISIBLE -> XR_SESSION_STATE_FOCUSED
+08-21 01:58:01.775 28005 28039 I Unity   : [XR] [524636477936] [01:58:01.775][Info   ] OpenXRSession::HandleSessionStateChangedEvent: state XR_SESSION_STATE_VISIBLE->XR_SESSION_STATE_FOCUSED session=3 time=33452277932976
+08-21 01:58:01.779 28005 28039 I Unity   : [XR] [524636477936] [01:58:01.779][Info   ] XrEventDataSessionStateChanged: XR_SESSION_STATE_VISIBLE->XR_SESSION_STATE_FOCUSED
+08-21 01:58:01.779 28005 28039 I Unity   : [XR] [524636477936] [01:58:01.779][Info   ] XrEventDataSessionStateChanged: XR_SESSION_STATE_FOCUSED->XR_SESSION_STATE_VISIBLE
+08-21 01:58:01.779 28005 28039 I Unity   : [XR] [524636477936] [01:58:01.779][Info   ] XrEventDataSessionStateChanged: XR_SESSION_STATE_VISIBLE->XR_SESSION_STATE_FOCUSED
+08-21 01:58:02.539 28005 28039 I Unity   : Handle cmd APP_CMD_GAINED_FOCUS(7)

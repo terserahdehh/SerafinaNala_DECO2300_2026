@@ -1,0 +1,20 @@
+using UnityEngine;using UnityEditor;using UnityEditor.SceneManagement;using System;using System.Linq;using System.Collections.Generic;
+public static class CymbalColliderAudit{
+public static void Run(){try{
+EditorSceneManager.OpenScene("Assets/MusicRoom.unity");var cym=UnityEngine.Object.FindObjectsByType<DrumSound>(FindObjectsInactive.Include,FindObjectsSortMode.None).First(d=>d.name=="CymbalHitZone");var box=cym.GetComponent<BoxCollider>();var frame=cym.transform;var filter=frame.parent.GetComponent<MeshFilter>();var source=filter.sharedMesh;var vertices=source.vertices;var indices=source.triangles;int[] parent=Enumerable.Range(0,vertices.Length).ToArray();
+Func<int,int> root=null;root=i=>{while(parent[i]!=i){parent[i]=parent[parent[i]];i=parent[i];}return i;};Action<int,int> join=(a,b)=>parent[root(a)]=root(b);var same=new Dictionary<Vector3Int,int>();
+for(int i=0;i<vertices.Length;i++){var v=filter.transform.TransformPoint(vertices[i])*10000f;var key=new Vector3Int(Mathf.RoundToInt(v.x),Mathf.RoundToInt(v.y),Mathf.RoundToInt(v.z));if(same.TryGetValue(key,out var j))join(i,j);else same[key]=i;}
+for(int i=0;i<indices.Length;i+=3){join(indices[i],indices[i+1]);join(indices[i],indices[i+2]);}
+var groups=Enumerable.Range(0,vertices.Length).GroupBy(i=>root(i)).Where(g=>g.Count()>300).ToArray();var chosen=groups.OrderBy(g=>{var b=new Bounds(filter.transform.TransformPoint(vertices[g.First()]),Vector3.zero);foreach(var i in g)b.Encapsulate(filter.transform.TransformPoint(vertices[i]));return Vector3.Distance(b.center,frame.position);}).First();
+var ids=chosen.ToArray();var remap=ids.Select((id,index)=>(id,index)).ToDictionary(x=>x.id,x=>x.index);var mesh=new Mesh();mesh.name="Existing cymbal contact mesh";mesh.vertices=ids.Select(i=>frame.InverseTransformPoint(filter.transform.TransformPoint(vertices[i]))).ToArray();mesh.triangles=Enumerable.Range(0,indices.Length/3).Where(i=>remap.ContainsKey(indices[i*3])).SelectMany(i=>new[]{remap[indices[i*3]],remap[indices[i*3+1]],remap[indices[i*3+2]]}).ToArray();mesh.RecalculateBounds();mesh.RecalculateNormals();
+var go=new GameObject("Cymbal hull candidate");go.transform.SetPositionAndRotation(frame.position,frame.rotation);var hull=go.AddComponent<MeshCollider>();hull.sharedMesh=mesh;hull.convex=true;hull.isTrigger=true;Physics.BakeMesh(mesh.GetInstanceID(),true);Physics.SyncTransforms();
+var probeGo=new GameObject("Actual size player tip");var probe=probeGo.AddComponent<SphereCollider>();probe.radius=.012f;var normal=frame.forward;
+var top=mesh.vertices.OrderByDescending(v=>Vector3.Dot(frame.TransformPoint(v)-frame.position,normal)).First();var topWorld=frame.TransformPoint(top);var centre=topWorld+normal*.0108f;bool oldContact=Physics.ComputePenetration(probe,centre,Quaternion.identity,box,frame.position,frame.rotation,out _,out _);bool newContact=Physics.ComputePenetration(probe,centre,Quaternion.identity,hull,go.transform.position,go.transform.rotation,out _,out _);
+Debug.Log("CYMBAL_AUDIT mesh vertices="+mesh.vertexCount+" triangles="+mesh.triangles.Length/3+" surfaceTop="+Vector3.Dot(topWorld-frame.position,normal)+" boxTop="+box.size.z*.5f+" playerRadius=.012");Debug.Log("CYMBAL_AUDIT real visible-bell contact oldBox="+oldContact+" convexMesh="+newContact);
+if(oldContact||!newContact)throw new Exception("Did not reproduce and correct visible-bell contact gap");
+var outside=frame.position+frame.right*.30f;bool outsideContact=Physics.ComputePenetration(probe,outside,Quaternion.identity,hull,go.transform.position,go.transform.rotation,out _,out _);if(outsideContact)throw new Exception("Hull extends outside visible cymbal footprint");Debug.Log("CYMBAL_AUDIT outside disc contact=False");
+System.IO.Directory.CreateDirectory("Assets/Physics");AssetDatabase.CreateAsset(mesh,"Assets/Physics/CymbalContactMesh.asset");AssetDatabase.SaveAssets();
+UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(probeGo);
+EditorApplication.Exit(0);
+}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
+}

@@ -1,0 +1,155 @@
+Unity 6000.3.20f1 isolated verification, 19 October 2026
+Editor compilation: passed
+Player-script C# compilation with UNITY_EDITOR excluded: passed (not an APK/IL2CPP build)
+111 runtime assertions passed; no failed assertions or runtime exceptions.
+Six synthetic XR UI cycles: three Mika, three Ren; Pause/Resume/Delete on each.
+Editor pose renders reviewed: Mika and Ms Maya, front and side.
+Headset testing not performed. No APK built, no commit or push.
+
+Non-blocking existing setup logs: scene DrumModeVisuals has no menuInputActions reference;
+two menu-ray missing-action errors remain outside this change. Help open/close and XR button
+interaction were exercised; physical Quest scrolling was not verified.
+
+PROBE PASS character standing/walking component wired
+PROBE PASS character uses compatible clips or named-bone fallback
+PROBE PASS character idle has no root motion
+PROBE PASS character relaxed elbow bend
+PROBE PASS character planted stance foot remains grounded without sliding
+PROBE PASS character world-space stance plant exercised
+PROBE PASS character idle arms are lowered
+PROBE PASS character walking follows actual displacement
+PROBE PASS character walking blends to idle without drift
+PROBE PASS mika standing/walking component wired
+PROBE PASS mika uses compatible clips or named-bone fallback
+PROBE PASS mika idle has no root motion
+PROBE PASS mika relaxed elbow bend
+PROBE PASS mika planted stance foot remains grounded without sliding
+PROBE PASS mika world-space stance plant exercised
+PROBE PASS mika idle arms are lowered
+PROBE PASS mika walking follows actual displacement
+PROBE PASS mika walking blends to idle without drift
+PROBE PASS ren standing/walking component wired
+PROBE PASS ren uses compatible clips or named-bone fallback
+PROBE PASS ren idle has no root motion
+PROBE PASS ren idle arms are lowered
+PROBE PASS ren walking follows actual displacement
+PROBE PASS ren walking blends to idle without drift
+PROBE PASS ren preserves imported model transform
+PROBE PASS cymbal surface wired
+PROBE PASS cymbal uses cymbal clip, not hi-hat
+PROBE PASS cymbal clip available to replay lookup
+PROBE PASS natural gravity-down strike crosses tilted cymbal
+PROBE PASS visible cymbal edge is playable
+PROBE PASS sub-threshold drift is silent
+PROBE PASS horizontal brush is silent
+PROBE PASS hit surface fitted to tilted cymbal mesh
+PROBE PASS player tip at mesh end with 12mm radius
+PROBE PASS player tip at mesh end with 12mm radius
+PROBE PASS fast downward strike records exactly one cymbal hit
+PROBE PASS strike uses recorder clock
+PROBE PASS contact below surface cannot retrigger after cooldown
+PROBE PASS upward recovery is silent
+PROBE PASS lift and second downward strike rearm
+PROBE PASS outside visible disc does not hit cymbal or nearby drums
+PROBE PASS both sticks can strike independently inside shared cooldown interval
+PROBE PASS all cymbal hits traverse the existing replay scheduler
+PROBE PASS replay AudioSource accepts cymbal audio
+PROBE CYMBAL CHECKS PASSED
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 1 overlapping Save/transition rejected
+PROBE STATE cycle=1 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 1 pause click
+PROBE PASS cycle 1 standing motion yields to drumming
+PROBE PASS cycle 1 exactly two attached musician sticks
+PROBE PASS cycle 1 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 1 pause freezes drummer with no idle writer
+PROBE PASS cycle 1 recording UI cannot intercept performance rays
+PROBE PASS cycle 1 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 1 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 1 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 2 overlapping Save/transition rejected
+PROBE STATE cycle=2 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 2 pause click
+PROBE PASS cycle 2 standing motion yields to drumming
+PROBE PASS cycle 2 exactly two attached musician sticks
+PROBE PASS cycle 2 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 2 pause freezes drummer with no idle writer
+PROBE PASS Help blocks performance controls
+PROBE PASS Help close restores performance controls
+PROBE PASS cycle 2 recording UI cannot intercept performance rays
+PROBE PASS cycle 2 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 2 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 2 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 3 overlapping Save/transition rejected
+PROBE STATE cycle=3 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 3 pause click
+PROBE PASS cycle 3 standing motion yields to drumming
+PROBE PASS cycle 3 exactly two attached musician sticks
+PROBE PASS cycle 3 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 3 pause freezes drummer with no idle writer
+PROBE PASS cycle 3 recording UI cannot intercept performance rays
+PROBE PASS cycle 3 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 3 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 3 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 4 overlapping Save/transition rejected
+PROBE STATE cycle=4 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 4 pause click
+PROBE PASS cycle 4 standing motion yields to drumming
+PROBE PASS cycle 4 exactly two attached musician sticks
+PROBE PASS cycle 4 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 4 pause freezes drummer with no idle writer
+PROBE PASS cycle 4 recording UI cannot intercept performance rays
+PROBE PASS cycle 4 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 4 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 4 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 5 overlapping Save/transition rejected
+PROBE STATE cycle=5 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 5 pause click
+PROBE PASS cycle 5 standing motion yields to drumming
+PROBE PASS cycle 5 exactly two attached musician sticks
+PROBE PASS cycle 5 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 5 pause freezes drummer with no idle writer
+PROBE PASS Help blocks performance controls
+PROBE PASS Help close restores performance controls
+PROBE PASS cycle 5 recording UI cannot intercept performance rays
+PROBE PASS cycle 5 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 5 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 5 delete click
+PROBE RAY Save Button active=True enabled=True registered=True pointerTarget=Save Button
+PROBE PASS cycle 6 overlapping Save/transition rejected
+PROBE STATE cycle=6 seqActive=True running=False recPerformance=True pauseInteractable=True blackout=False
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 6 pause click
+PROBE PASS cycle 6 standing motion yields to drumming
+PROBE PASS cycle 6 exactly two attached musician sticks
+PROBE PASS cycle 6 visual sticks cannot trigger audio or recording
+PROBE PASS cycle 6 pause freezes drummer with no idle writer
+PROBE PASS cycle 6 recording UI cannot intercept performance rays
+PROBE PASS cycle 6 duplicate Save ignored
+PROBE RAY Pause Button active=True enabled=True registered=True pointerTarget=Pause Button
+PROBE PASS cycle 6 resume click
+PROBE RAY Delete and Rerecord Button active=True enabled=True registered=True pointerTarget=Delete and Rerecord Button
+PROBE PASS cycle 6 delete click
+PROBE PASS listeners do not accumulate
+PROBE PASS exactly two menu rays after six cycles
+PROBE PASS one XR UI input module
+PROBE ALL CYCLES AND LOCOMOTION PASSED

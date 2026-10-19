@@ -70,11 +70,24 @@ These are **positions**, not collider surface calculations. Inspect the zone piv
 
 ### Drumsticks and motion tuning
 
-No drumstick reference is required: each hand receives a generated cylinder stick, 0.34 m long and 0.012 m wide, with no collider or sound. Both are removed on return to recording. The existing player/controller drumsticks remain assigned to their existing controls.
+The saved MusicRoom scene assigns `Assets/Prefabs/MusicianDrumstickVisual.prefab` to **both** rig profiles. This new visual-only wrapper reuses the mesh and material from `Assets/lowpoly_drumstick.glb`. It contains only Transforms, a MeshFilter and a MeshRenderer: no colliders, Rigidbody, XR interaction, hit/recording scripts or AudioSource. The player/controller stick instances and their hit scripts are unchanged.
 
-For a custom visual, assign `Drumstick Prefab` separately on Mika Rig and Ren Rig. Prepare a **visual-only prefab** with its grip at local origin, tip along local +Z, and actual length equal to `Stick Length` in metres. Do not assign the controller stick objects. Imported art with different axes should sit beneath a corrected prefab wrapper. A fresh copy is instantiated for each hand under an inactive grip; behaviours, colliders and audio sources are disabled before activation, and rigidbodies are made kinematic without collisions.
+The wrapper has its palm grip at local origin and its tip at local +Z, 0.34 m from the grip, matching the existing animation's `Stick Length`. The original mesh is uniformly scaled to 0.44 m overall, leaving 0.10 m behind the palm. The `Tip (visual reference only)` child is an inspection marker, not a hit zone. Keep the prefab's mesh correction intact; tune the rig grip fields rather than moving player sticks or changing the mesh asset. If changing `Stick Length`, adjust the visual wrapper's grip-to-tip distance to match.
 
-`Left/Right Grip Offset` moves the grip in the hand bone's local units. `Left/Right Grip Euler` adjusts the automatically calibrated grip rotation, which is based on each model's existing wrist/forearm axes. Defaults are zero. Tune each hand separately if the stick intersects the palm or the wrist looks rolled. Generated stick dimensions compensate for positive imported hand scale.
+Runtime seating creates independent **Left/Right musician drumstick grip** children on the resolved hand bones, and instantiates a separate visual beneath each. Local position/rotation stays attached to the hand throughout the existing animation; scale compensation keeps the visual in world metres and handles mirrored import scale. The component still sanitises custom visuals before activating their inactive grip: all MonoBehaviours, colliders and AudioSources are disabled; any Rigidbody is made kinematic with gravity and collisions disabled. The cylinder remains a fallback only for other scenes/profiles with no visual assigned.
+
+The current skeletons were inspected in Unity: Mika uses `J_Bip_L_Hand_50` / `J_Bip_R_Hand_69`, Ren uses `Left wrist` / `Right wrist`; both have unit world hand scale. Mika's middle-finger bases are approximately 0.066 m from the wrist; Ren's are approximately 0.060 m. The following separate starting calibrations place the grip inside the palm, slightly toward the thumb and below the finger-base plane:
+
+| Profile | Left grip offset | Right grip offset | Left / right grip Euler |
+| --- | --- | --- | --- |
+| Mika | (-0.004, 0.040, -0.009) | (0.004, 0.040, -0.009) | (0, 0, -8) / (0, 0, 8) |
+| Ren | (-0.003, 0.036, -0.008) | (0.003, 0.036, -0.008) | (0, 0, -4) / (0, 0, 4) |
+
+Offsets use hand-local units; Euler values are degrees relative to the existing automatic wrist-axis calibration. The mirrored roll adjustments are initial visual tuning, not hardware-verified grip fits. Neither profile changes hips/seat/feet settings, target assignments, stroke timing or IK logic. Fingers retain their existing pose; no finger-closing animation is added.
+
+**No additional Inspector assignments are needed in the saved scene.** On **Performance Manager → PerformanceSequence → Procedural Drumming**, check both `Drumstick Prefab` fields reference the musician visual. In Play Mode inspect each hand's generated grip to judge palm intersection and tip direction; change the corresponding rig's offsets/Eulers for persistent tuning. Runtime-created grip edits do not persist after leaving Play Mode.
+
+Sticks appear with seating under the existing performance blackout, remain visible while paused, and are deactivated immediately on Release/OnDisable before deferred destruction. Starting performance again creates a fresh pair with no visible duplicate pair. Audio recording, playback clock, pause/resume, controls and return transition are unchanged.
 
 Defaults: `Lift Height = 0.18` m, `Strike Duration = 0.09` s, `Recovery Duration = 0.18` s. The stroke anticipates the timestamp, reaches contact at the recorded hit, then recovers. Closely spaced strokes compress these phases. Alternate targets alternate hands across the take; fixed-handed targets do not advance the alternating sequence. One hand cannot represent two distinct simultaneous hits; configure left/right assignments for common chords if necessary. Targets and seating are sampled at performance preparation and remain stationary during the loop.
 
@@ -98,3 +111,13 @@ In Unity, test both selections separately:
 4. Let several loops run and check for root drift, limb twist, loop discontinuities and duplicate drum audio. Confirm no animation affects preview playback or recording.
 5. Pause during a strike and during recovery, wait, then resume; arms and audio must resume together. Delete while playing and while paused; confirm sticks disappear under blackout, only the chosen character was visible, and the player returns to recording with working controller sticks and menus.
 6. Repeat Save/Delete for both musicians and test the final flow on the Quest. Mesh deformation, exact physical seat fit, wrist calibration and VR appearance require this visual pass; they cannot be verified by compilation or synthetic-rig checks.
+
+## Musician-stick validation (19 October 2026)
+
+No APK was built. An isolated clone of the current project compiled and passed Unity Play Mode checks using both actual imported character skeletons and the saved MusicRoom rig profiles. Each selected musician had exactly two enabled mesh visuals parented through grips to the correct hands. The prefab contained no physics, XR, MonoBehaviour, or audio components; mesh/material references resolved and the material shader was supported. Actual mesh tips matched the existing 0.34 m grip-to-tip reach. One thousand evaluations per rig preserved the seated root and leg pose. Five consecutive Seat calls kept exactly two active grips; Release and OnDisable hid all sticks immediately, restored the original bone/root pose, and allowed restart. Full-body and palm camera renders for both musicians were inspected.
+
+This establishes attachment, mesh visibility and lifecycle in Editor Play Mode, not final headset ergonomics or all drum-surface contacts. On Quest, visually check both left/right palms from the normal performance viewpoint, imported finger pose, wrist roll, every drum target and fast/alternating strokes; then pause/resume and repeat Delete/Record/Save. Verify sticks remain attached while paused, disappear on return, never create duplicate sounds/recordings, and the player's original sticks and controls still behave normally. The recording/playback/control scripts were not changed by this work.
+
+## Standing/walking animation ownership
+
+CharacterMotion now owns standing idle/walking and explicitly yields before ProceduralDrummer caches the seated pose. Release returns ownership to standing animation when the actor is active. See `RepeatCyclesAndCharacterMotion.md` for the repeated-cycle interaction repair, clip/fallback choices, validation and six-cycle Quest checklist. Existing seat points, grip settings, drum target mappings and playback-clock integration are unchanged.
