@@ -1,3 +1,5 @@
+// Historical test of the retired cymbal detection system.
+// Kept for reference only; this does not work with the current game.
 using System;using System.Collections;using System.Collections.Generic;using System.Linq;using System.Reflection;using UnityEngine;using UnityEngine.UI;using UnityEngine.InputSystem;using UnityEngine.InputSystem.Controls;using UnityEngine.XR.Interaction.Toolkit;using UnityEngine.XR.Interaction.Toolkit.UI;using UnityEngine.XR.Interaction.Toolkit.Interactors;using Unity.XR.CoreUtils;
 public class CycleProbe:MonoBehaviour{
  const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;

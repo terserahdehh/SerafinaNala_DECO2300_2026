@@ -1,3 +1,5 @@
+// Historical test of the retired cymbal detection system.
+// Kept for reference only; this does not work with the current game.
 using UnityEditor;using UnityEditor.SceneManagement;using UnityEngine;
 public static class CymbalRepro{public static void Run(){EditorSceneManager.OpenScene("Assets/MusicRoom.unity");var s=Object.FindFirstObjectByType<CymbalStrikeSurface>();var p=s.transform.position;var n=s.Normal;float r=.012f,bell=.043f;
 foreach(int hz in new[]{72,90,120}){
